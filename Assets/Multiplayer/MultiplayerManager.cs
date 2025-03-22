@@ -46,6 +46,9 @@ public class MultiplayerManager : MonoBehaviour
     // UI
     [SerializeField] private GameObject lobbyUI;
 
+    private float heartbeatTimer;
+    private float lobbyUpdateTimer;
+
     #region Singleton
 
     private MultiplayerManager instance;
@@ -60,6 +63,11 @@ public class MultiplayerManager : MonoBehaviour
                 {
                     instance = new GameObject("MultiplayerManager").AddComponent<MultiplayerManager>();
                 }
+#if !UNITY_EDITOR && UNITY_WEBGL
+                encryption = EncryptionType.WSS;
+#else
+                encryption = EncryptionType.DTLS;
+#endif
             }
             return instance;
         }
@@ -93,6 +101,9 @@ public class MultiplayerManager : MonoBehaviour
 
     void Update()
     {
+        HandleLobbyHeartbeat();
+        HandleLobbyPollForUpdates();
+
         if (Input.GetKeyDown(KeyCode.P))
         {
             if (joinedLobby != null)
@@ -101,7 +112,50 @@ public class MultiplayerManager : MonoBehaviour
             }
         }
     }
-    
+    private async void HandleLobbyHeartbeat()
+    {
+        if (joinedLobby != null && NetworkManager.Singleton.IsHost)
+        {
+            heartbeatTimer -= Time.deltaTime;
+            if (heartbeatTimer <= 0)
+            {
+                float _heartbeatTimerMax = 15f;
+                heartbeatTimer = _heartbeatTimerMax;
+
+                await LobbyService.Instance.SendHeartbeatPingAsync(joinedLobby.Id);
+            }
+        }
+    }
+
+    private async void HandleLobbyPollForUpdates()
+    {
+        try
+        {
+            if (joinedLobby != null)
+            {
+                lobbyUpdateTimer -= Time.deltaTime;
+                if (lobbyUpdateTimer <= 0)
+                {
+                    float _lobbyUpdateTimerMax = 1.5f;
+                    lobbyUpdateTimer = _lobbyUpdateTimerMax;
+                    Lobby _lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
+                    if (_lobby != null)
+                    {
+                        joinedLobby = _lobby;
+                    }
+                    else
+                    {
+                        Debug.Log("Lobby is null");
+                    }
+                }
+            }
+        }
+        catch (LobbyServiceException _e)
+        {
+            Debug.LogError("Failed to update lobby: " + _e.Message);
+        }
+    }
+
     public void PrintPlayers()
     {
         Lobby _lobby = joinedLobby;
