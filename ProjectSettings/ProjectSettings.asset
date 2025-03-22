@@ -930,11 +930,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 674fb783-ce20-4ff3-85c6-d59f2ca5196f
+  cloudProjectId: 1aad79ee-007c-4867-a36d-2bbd8366788e
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: Dueland
-  organizationId: unity_dca354746ca61d759af2
+  organizationId: khenanbenanou
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
