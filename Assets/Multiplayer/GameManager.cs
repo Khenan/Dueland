@@ -53,4 +53,16 @@ public class GameManager : NetworkBehaviour
     {
         Debug.Log("Server ping Client");
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddTextChatServerRpc(string _text, string _playerName)
+    {
+        AddTextChatClientRpc(_text, _playerName);
+    }
+
+    [ClientRpc]
+    private void AddTextChatClientRpc(string text, string _playerName)
+    {
+        TextChat.Instance.AddText(text, _playerName);
+    }
 }
