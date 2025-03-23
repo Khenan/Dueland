@@ -192,7 +192,7 @@ public class MultiplayerManager : MonoBehaviour
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             if (PlayerName == string.Empty)
             {
-                PlayerName = "Anonymous#" + UnityEngine.Random.Range(1, 1000);
+                PlayerName = "#" + UnityEngine.Random.Range(1, 1000);
             }
             PlayerId = AuthenticationService.Instance.PlayerId;
         }
