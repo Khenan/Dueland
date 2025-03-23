@@ -43,6 +43,5 @@ public class TextChat : MonoBehaviour
         inputField.text = string.Empty;
 
         Canvas.ForceUpdateCanvases();
-        scrollRect.verticalNormalizedPosition = 0f;
     }
 }
