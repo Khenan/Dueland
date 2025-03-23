@@ -8,12 +8,22 @@ public class GameTime : MonoBehaviour
 
     void Start()
     {
-        gameManager = GameManager.Instance;
         text = GetComponent<TextMeshProUGUI>();
+        MultiplayerManager.Instance.onGameManagerSpawned += (GameManager gameManager) =>
+        {
+            this.gameManager = gameManager;
+        };
     }
 
     void Update()
     {
-        text.text = gameManager.GameTime.ToString();
+        if (gameManager != null)
+        {
+            text.text = gameManager.GameTime.ToString("F2") + "s";
+        }
+        else
+        {
+            text.text = "0.00s";
+        }
     }
 }
