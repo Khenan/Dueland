@@ -5,7 +5,6 @@ public class GameManager : NetworkBehaviour
 {
     private NetworkVariable<float> gameTime = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public float GameTime => gameTime.Value;
-    NetworkObject networkObject;
 
     private static GameManager instance;
     public static GameManager Instance
@@ -17,15 +16,6 @@ public class GameManager : NetworkBehaviour
                 instance = FindFirstObjectByType<GameManager>();
             }
             return instance;
-        }
-    }
-
-    void Awake()
-    {
-        networkObject = GetComponent<NetworkObject>();
-        if (NetworkManager.Singleton.IsServer)
-        {
-            networkObject.Spawn();
         }
     }
 
