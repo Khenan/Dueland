@@ -42,14 +42,14 @@ public class GameManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void PingServer()
+    private void PingServerRpc()
     {
         Debug.Log("A client ping Server");
-        PingClient();
+        PingClientRpc();
     }
 
     [ClientRpc]
-    private void PingClient()
+    private void PingClientRpc()
     {
         Debug.Log("Server ping Client");
     }
