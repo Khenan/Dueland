@@ -29,7 +29,7 @@ public class MultiplayerManager : MonoBehaviour
     private const string DTLS_ENCRYPTION = "dtls"; // Datagram Transport Layer Security
     private const string WSS_ENCRYPTION = "wss"; // Web Socket Secure, use for WebGl builds
 
-    private EncryptionType encryption = EncryptionType.DTLS;
+    private static EncryptionType encryption = EncryptionType.DTLS;
     private string ConnectionType => encryption == EncryptionType.DTLS ? DTLS_ENCRYPTION : WSS_ENCRYPTION;
 
     #endregion
@@ -52,8 +52,8 @@ public class MultiplayerManager : MonoBehaviour
 
     #region Singleton
 
-    private MultiplayerManager instance;
-    public MultiplayerManager Instance
+    private static MultiplayerManager instance;
+    public static MultiplayerManager Instance
     {
         get
         {
