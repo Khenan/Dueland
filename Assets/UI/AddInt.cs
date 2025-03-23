@@ -13,7 +13,6 @@ public class AddInt : NetworkBehaviour, IDependantToNetworkCanvas
     {
         m_text = GetComponentInChildren<TMP_Text>();
     }
-
     public void AddValue()
     {
         value.Value++;
@@ -22,5 +21,17 @@ public class AddInt : NetworkBehaviour, IDependantToNetworkCanvas
     private void UpdateText()
     {
         m_text.text = value.Value.ToString();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void PingServerRpc()
+    {
+        PingClientRpc();
+    }
+
+    [ClientRpc]
+    private void PingClientRpc()
+    {
+        AddValue();
     }
 }
