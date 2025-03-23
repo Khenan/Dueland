@@ -24,6 +24,7 @@ public class ClientSpawner : MonoBehaviour
                 else
                 {
                     m_bufferUI.Add(_networkObject);
+                    Debug.Log($"{_networkObject.name} added to buffer");
                 }
             }
         }
@@ -34,6 +35,7 @@ public class ClientSpawner : MonoBehaviour
         foreach (var networkObject in m_bufferUI)
         {
             networkObject.transform.SetParent(canvas.transform, false);
+            Debug.Log($"{networkObject.name} added to canvas");
         }
         m_bufferUI.Clear();
     }

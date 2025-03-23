@@ -23,8 +23,4 @@ public class AddInt : NetworkBehaviour, IDependantToNetworkCanvas
     {
         m_text.text = value.Value.ToString();
     }
-    public override void OnNetworkSpawn()
-    {
-        Debug.Log("Button Add Int : Network Object Spawned");
-    }
 }
