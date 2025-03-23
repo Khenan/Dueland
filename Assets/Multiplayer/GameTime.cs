@@ -9,10 +9,19 @@ public class GameTime : MonoBehaviour
     void Start()
     {
         text = GetComponent<TextMeshProUGUI>();
-        MultiplayerManager.Instance.onGameManagerSpawned += (GameManager gameManager) =>
+
+        if (GameManager.Instance != null)
         {
-            this.gameManager = gameManager;
-        };
+            gameManager = GameManager.Instance;
+        }
+        else
+        {
+            MultiplayerManager.Instance.onGameManagerSpawned += (GameManager _gameManager) =>
+            {
+                Debug.Log("Game Manager Spawned");
+                gameManager = _gameManager;
+            };
+        }
     }
 
     void Update()
