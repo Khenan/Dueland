@@ -11,6 +11,7 @@ using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MultiplayerManager : MonoBehaviour
 {
@@ -183,7 +184,7 @@ public class MultiplayerManager : MonoBehaviour
 
         AuthenticationService.Instance.SignedIn += () =>
         {
-            Debug.Log("Signed in as" + AuthenticationService.Instance.PlayerId);
+            Debug.Log("Signed in as " + AuthenticationService.Instance.PlayerId);
         };
 
         if (!AuthenticationService.Instance.IsSignedIn)
@@ -200,23 +201,53 @@ public class MultiplayerManager : MonoBehaviour
         Initialized = true;
     }
 
-    public void HostLobby()
+    public async void HostLobby()
     {
+        lobbyUI.SetActive(false);
         Debug.Log("Creating lobby...");
         CreateLobbyOptions _lobbyOptions = new CreateLobbyOptions()
         {
             Player = GetPlayer(),
             Data = new()
         };
-        CreateCustomLobby("Lobby", maxPlayers, _lobbyOptions);
-        lobbyUI.SetActive(false);
+        bool _success = await CreateCustomLobby("Lobby", maxPlayers, _lobbyOptions);
+        if (_success)
+        {
+            Debug.Log("Going to game scene...");
+            await GotToGameScene();
+        }
+        else
+        {
+            lobbyUI.SetActive(true);
+        }
     }
 
-    public void JoinLobby()
+    public async void JoinLobby()
     {
-        Debug.Log("Joining lobby...");
-        QuickJoinLobby();
         lobbyUI.SetActive(false);
+        Debug.Log("Joining lobby...");
+        bool _success = await QuickJoinLobby();
+        if (_success)
+        {
+            Debug.Log("Going to game scene...");
+            await GotToGameScene();
+        }
+        else
+        {
+            lobbyUI.SetActive(true);
+        }
+    }
+
+    private float progress = 0f;
+    private async Task GotToGameScene()
+    {
+        AsyncOperation _loadScene = SceneManager.LoadSceneAsync("Game");
+        while (!_loadScene.isDone)
+        {
+            progress = _loadScene.progress;
+            Debug.Log("Loading game scene: " + progress);
+            await Task.Yield();
+        }
     }
 
     public Player GetPlayer()
