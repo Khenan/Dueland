@@ -50,9 +50,6 @@ public class MultiplayerManager : MonoBehaviour
     private float heartbeatTimer;
     private float lobbyUpdateTimer;
 
-    // Actions
-    public Action<GameManager> onGameManagerSpawned;
-
     #region Singleton
 
     private static MultiplayerManager instance;

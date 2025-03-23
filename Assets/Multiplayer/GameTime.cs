@@ -16,7 +16,7 @@ public class GameTime : MonoBehaviour
         }
         else
         {
-            MultiplayerManager.Instance.onGameManagerSpawned += (GameManager _gameManager) =>
+            GameManager.onGameManagerSpawned += (GameManager _gameManager) =>
             {
                 Debug.Log("Game Manager Spawned");
                 gameManager = _gameManager;
