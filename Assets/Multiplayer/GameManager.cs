@@ -29,9 +29,9 @@ public class GameManager : NetworkBehaviour
             gameTime.Value += Time.deltaTime;
         }
 
-        if(Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P))
         {
-            PingServer();
+            PingServerRpc();
         }
     }
 
