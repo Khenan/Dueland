@@ -35,7 +35,7 @@ public class MultiplayerManager : MonoBehaviour
     #endregion
 
     // Player
-    public string playerName = string.Empty;
+    public string PlayerName { get; private set; } = string.Empty;
     public string PlayerId { get; private set; }
 
     private int maxPlayers = 2;
@@ -190,9 +190,9 @@ public class MultiplayerManager : MonoBehaviour
         if (!AuthenticationService.Instance.IsSignedIn)
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            if (playerName == string.Empty)
+            if (PlayerName == string.Empty)
             {
-                playerName = "Anonymous#" + UnityEngine.Random.Range(1, 1000);
+                PlayerName = "Anonymous#" + UnityEngine.Random.Range(1, 1000);
             }
             PlayerId = AuthenticationService.Instance.PlayerId;
         }
@@ -258,7 +258,7 @@ public class MultiplayerManager : MonoBehaviour
                 {
                     {
                         "PlayerName",
-                        new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName)
+                        new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, PlayerName)
                     },
                     {
                         "Ready",

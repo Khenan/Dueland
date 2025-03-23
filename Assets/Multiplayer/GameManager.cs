@@ -29,9 +29,9 @@ public class GameManager : NetworkBehaviour
             gameTime.Value += Time.deltaTime;
         }
 
-        if(Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P))
         {
-            PingServer();
+            PingServerRpc();
         }
     }
 
@@ -52,5 +52,17 @@ public class GameManager : NetworkBehaviour
     private void PingClientRpc()
     {
         Debug.Log("Server ping Client");
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddTextChatServerRpc(string _text, string _playerName)
+    {
+        AddTextChatClientRpc(_text, _playerName);
+    }
+
+    [ClientRpc]
+    private void AddTextChatClientRpc(string text, string _playerName)
+    {
+        TextChat.Instance.AddText(text, _playerName);
     }
 }
