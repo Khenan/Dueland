@@ -26,7 +26,6 @@ public class TextChat : MonoBehaviour
 
     private void OnEndEdit(string _text)
     {
-        Debug.Log(MultiplayerManager.Instance.PlayerName);
         GameManager.Instance.AddTextChatServerRpc(_text, MultiplayerManager.Instance.PlayerName);
     }
 
