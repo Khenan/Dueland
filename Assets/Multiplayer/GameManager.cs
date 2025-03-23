@@ -30,5 +30,6 @@ public class GameManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         Debug.Log("Network Object Spawned");
+        MultiplayerManager.Instance.onGameManagerSpawned?.Invoke(this);
     }
 }
