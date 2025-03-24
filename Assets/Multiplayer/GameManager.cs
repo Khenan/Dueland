@@ -9,6 +9,7 @@ public class GameManager : NetworkBehaviour
 {
     private NetworkVariable<float> gameTime = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<FixedString4096Bytes> compressedString = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private NetworkVariable<List<ulong>> playerIds = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public float GameTime => gameTime.Value;
 
     public static Action<GameManager> onGameManagerSpawned;
@@ -26,8 +27,8 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    private List<ulong> playerIds = new List<ulong>();
-    public List<ulong> PlayerIds => playerIds;
+    public List<ulong> PlayerIds => playerIds.Value;
+
     public bool IsGameStarted { get; private set; }
     public Action OnAllPlayersConnected { get; set; }
 
@@ -132,7 +133,7 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     private void AddClientIdClientRpc(ulong _clientId)
     {
-        playerIds.Add(_clientId);
+        playerIds.Value.Add(_clientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
