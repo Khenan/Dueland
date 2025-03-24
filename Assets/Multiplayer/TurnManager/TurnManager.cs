@@ -52,7 +52,7 @@ public class TurnManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsHost && gameManager != null)
         {
-            if (gameManager.IsGameStarted && turnTime.Value < timeTurnDuration)
+            if (gameManager.IsGameStarted.Value && turnTime.Value < timeTurnDuration)
             {
                 turnTime.Value += Time.deltaTime;
                 if (turnTime.Value >= timeTurnDuration)
