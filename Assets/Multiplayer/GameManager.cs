@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class GameManager : NetworkBehaviour
 {
+    private NetworkVariable<bool> IsGameStarted = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<float> gameTime = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<FixedString4096Bytes> compressedString = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkList<ulong> playerIds = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -26,26 +27,24 @@ public class GameManager : NetworkBehaviour
             return instance;
         }
     }
-
-    public bool IsGameStarted { get; private set; }
     public Action OnAllPlayersConnected { get; set; }
 
     void Update()
     {
-        if (NetworkManager.Singleton.IsServer)
-        {
-            gameTime.Value += Time.deltaTime;
-        }
-
         if (Input.GetKeyDown(KeyCode.P))
         {
             PingServerRpc();
         }
 
-        if (!IsGameStarted && MultiplayerManager.Instance.JoinedLobby.Players.Count == 1)
+        if (NetworkManager.Singleton.IsServer)
         {
-            IsGameStarted = true;
-            OnAllPlayersConnected?.Invoke();
+            gameTime.Value += Time.deltaTime;
+
+            if (!IsGameStarted.Value && MultiplayerManager.Instance.JoinedLobby.Players.Count == 2)
+            {
+                IsGameStarted.Value = true;
+                OnAllPlayersConnected?.Invoke();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.C))
@@ -79,7 +78,7 @@ public class GameManager : NetworkBehaviour
             compressedString.Value = ConvertTilesToString(map);
             Debug.Log("Compressed string: " + compressedString.Value.ToString());
             Debug.Log("Compressed string: " + compressedString.Value);
-            
+
             GenerateMap(map);
         }
     }
