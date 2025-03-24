@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : NetworkBehaviour
@@ -22,6 +24,11 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    private List<ulong> playerIds = new List<ulong>();
+    public List<ulong> PlayerIds => playerIds;
+    public bool IsGameStarted { get; private set; }
+    public Action OnAllPlayersConnected { get; set; }
+
     void Update()
     {
         if (NetworkManager.Singleton.IsServer)
@@ -33,12 +40,31 @@ public class GameManager : NetworkBehaviour
         {
             PingServerRpc();
         }
+
+        if (!IsGameStarted && MultiplayerManager.Instance.JoinedLobby.Players.Count == 1)
+        {
+            IsGameStarted = true;
+            OnAllPlayersConnected?.Invoke();
+        }
     }
 
     public override void OnNetworkSpawn()
     {
         Debug.Log("Network GameManager Spawned");
         onGameManagerSpawned?.Invoke(this);
+        AddClientIdServerRpc(NetworkManager.Singleton.LocalClientId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void AddClientIdServerRpc(ulong _clientId)
+    {
+        AddClientIdClientRpc(_clientId);
+    }
+
+    [ClientRpc]
+    private void AddClientIdClientRpc(ulong _clientId)
+    {
+        playerIds.Add(_clientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
