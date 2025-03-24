@@ -52,14 +52,11 @@ public class TurnManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsHost && gameManager != null)
         {
-            if (gameManager.IsGameStarted && gameManager.GameTime < timeTurnDuration)
+            if (gameManager.IsGameStarted && turnTime.Value < timeTurnDuration)
             {
-                float _gameTime = turnTime.Value;
-                _gameTime += Time.deltaTime;
-                turnTime.Value = _gameTime;
+                turnTime.Value += Time.deltaTime;
                 if (turnTime.Value >= timeTurnDuration)
                 {
-                    turnTime.Value = 0;
                     NextTurn();
                 }
             }
@@ -74,11 +71,11 @@ public class TurnManager : NetworkBehaviour
 
     private void NextTurn()
     {
-        turnTime.Value = timeTurnDuration;
+        turnTime.Value = 0;
         // Next player turn
-        int currentPlayerIndex = gameManager.PlayerIds.IndexOf(turnPlayerId.Value);
-        int nextPlayerIndex = (currentPlayerIndex + 1) % gameManager.PlayerIds.Count;
-        turnPlayerId.Value = gameManager.PlayerIds[nextPlayerIndex];
+        int currentPlayerIndex = gameManager.playerIds.IndexOf(turnPlayerId.Value);
+        int nextPlayerIndex = (currentPlayerIndex + 1) % gameManager.playerIds.Count;
+        turnPlayerId.Value = gameManager.playerIds[nextPlayerIndex];
     }
 
     public void EndTurn()
