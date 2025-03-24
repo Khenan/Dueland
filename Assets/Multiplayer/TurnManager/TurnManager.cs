@@ -32,7 +32,7 @@ public class TurnManager : NetworkBehaviour
 
     void OnEnable()
     {
-        if(NetworkManager.Singleton.LocalClientId == turnPlayerId.Value)
+        if (NetworkManager.Singleton.LocalClientId == turnPlayerId.Value)
         {
             endTurnButton.interactable = true;
         }
@@ -50,21 +50,21 @@ public class TurnManager : NetworkBehaviour
 
     void Update()
     {
-        if (NetworkManager.Singleton.IsServer && gameManager != null)
+        if (NetworkManager.Singleton.IsHost && gameManager != null)
         {
             if (gameManager.IsGameStarted && gameManager.GameTime < timeTurnDuration)
             {
                 float _gameTime = turnTime.Value;
                 _gameTime += Time.deltaTime;
-                _gameTime = Mathf.Clamp(_gameTime, 0, timeTurnDuration);
                 turnTime.Value = _gameTime;
-                timerText.text = $"{timeTurnDuration - turnTime.Value:0}";
                 if (turnTime.Value >= timeTurnDuration)
                 {
+                    turnTime.Value = 0;
                     NextTurn();
                 }
             }
         }
+        timerText.text = $"{timeTurnDuration - turnTime.Value:0}";
     }
 
     private void Init()
@@ -74,7 +74,7 @@ public class TurnManager : NetworkBehaviour
 
     private void NextTurn()
     {
-        turnTime.Value = 0;
+        turnTime.Value = timeTurnDuration;
         // Next player turn
         int currentPlayerIndex = gameManager.PlayerIds.IndexOf(turnPlayerId.Value);
         int nextPlayerIndex = (currentPlayerIndex + 1) % gameManager.PlayerIds.Count;
