@@ -10,11 +10,12 @@ public class TurnManager : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
     private NetworkVariable<float> turnTime = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<ulong> turnPlayerId = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
     private GameManager gameManager;
-
+    public static Action<ulong> onEndTurn;
+    public static TurnManager Instance { get; private set; }
     void Awake()
     {
+        Instance = this;
         if (NetworkManager.Singleton.IsServer)
         {
             if (GameManager.Instance != null)
@@ -120,6 +121,7 @@ public class TurnManager : NetworkBehaviour
         if (NetworkManager.Singleton.LocalClientId == _turnPlayerId)
         {
             endTurnButton.interactable = true;
+            onEndTurn?.Invoke(_turnPlayerId);
         }
     }
 }
