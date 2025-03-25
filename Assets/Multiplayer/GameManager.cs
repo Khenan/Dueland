@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,6 +24,7 @@ public class GameManager : NetworkBehaviour
         }
     }
     public Action OnAllPlayersConnected { get; set; }
+    public bool allPlayersConnected;
 
     void Update()
     {
@@ -37,13 +36,15 @@ public class GameManager : NetworkBehaviour
         if (NetworkManager.Singleton.IsServer)
         {
             gameTime.Value += Time.deltaTime;
-
-            if (!IsGameStarted.Value && MultiplayerManager.Instance.JoinedLobby.Players.Count == 2)
-            {
-                IsGameStarted.Value = true;
-                OnAllPlayersConnected?.Invoke();
-            }
         }
+    }
+
+    private void AllPlayersConnected()
+    {
+        Logger.Log("All players connected");
+        OnAllPlayersConnected?.Invoke();
+        allPlayersConnected = true;
+        IsGameStarted.Value = true;
     }
 
     public override void OnNetworkSpawn()
@@ -58,6 +59,10 @@ public class GameManager : NetworkBehaviour
     private void AddClientIdServerRpc(ulong _clientId)
     {
         playerIds.Add(_clientId);
+        if(playerIds.Count == 2)
+        {
+            AllPlayersConnected();
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
