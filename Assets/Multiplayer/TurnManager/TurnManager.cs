@@ -15,18 +15,21 @@ public class TurnManager : NetworkBehaviour
 
     void Awake()
     {
-        if (GameManager.Instance != null)
+        if (NetworkManager.Singleton.IsServer)
         {
-            gameManager = GameManager.Instance;
-            gameManager.OnAllPlayersConnected += Init;
-        }
-        else
-        {
-            GameManager.onGameManagerSpawned += (GameManager _gameManager) =>
+            if (GameManager.Instance != null)
             {
-                gameManager = _gameManager;
-                _gameManager.OnAllPlayersConnected += Init;
-            };
+                gameManager = GameManager.Instance;
+                gameManager.OnAllPlayersConnected += Init;
+            }
+            else
+            {
+                GameManager.onGameManagerSpawned += (GameManager _gameManager) =>
+                {
+                    gameManager = _gameManager;
+                    _gameManager.OnAllPlayersConnected += Init;
+                };
+            }
         }
     }
 
@@ -57,25 +60,43 @@ public class TurnManager : NetworkBehaviour
                 turnTime.Value += Time.deltaTime;
                 if (turnTime.Value >= timeTurnDuration)
                 {
-                    NextTurn();
+                    NextTurnServerRpc();
                 }
             }
         }
         timerText.text = $"{timeTurnDuration - turnTime.Value:0}";
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Logger.Log($"my id: {NetworkManager.Singleton.LocalClientId}");
+            Logger.Log($"Turn id: {turnPlayerId.Value}");
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        LoadingPanel.Instance.ObjectLoaded();
+        if (NetworkManager.Singleton.IsServer)
+        {
+            turnPlayerId.Value = gameManager.playerIds[0];
+            turnTime.Value = 0;
+        }
     }
 
     private void Init()
     {
-        turnTime.Value = timeTurnDuration;
+        turnTime.Value = 0;
     }
 
-    private void NextTurn()
+    [ServerRpc(RequireOwnership = false)]
+    private void NextTurnServerRpc()
     {
         turnTime.Value = 0;
         // Next player turn
         int currentPlayerIndex = gameManager.playerIds.IndexOf(turnPlayerId.Value);
         int nextPlayerIndex = (currentPlayerIndex + 1) % gameManager.playerIds.Count;
         turnPlayerId.Value = gameManager.playerIds[nextPlayerIndex];
+        NextTurnClientRpc(turnPlayerId.Value);
     }
 
     public void EndTurn()
@@ -90,14 +111,13 @@ public class TurnManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void EndTurnServerRpc()
     {
-        NextTurn();
-        NextTurnClientRpc();
+        NextTurnServerRpc();
     }
 
     [ClientRpc]
-    private void NextTurnClientRpc()
+    private void NextTurnClientRpc(ulong _turnPlayerId)
     {
-        if (NetworkManager.Singleton.LocalClientId == turnPlayerId.Value)
+        if (NetworkManager.Singleton.LocalClientId == _turnPlayerId)
         {
             endTurnButton.interactable = true;
         }
