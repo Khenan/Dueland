@@ -11,7 +11,7 @@ public class MapManager : NetworkBehaviour
     private NetworkVariable<FixedString4096Bytes> compressedMap = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> mapIsGenerated = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    private MapGenerator mapGeneratorManager = new MapGenerator();
+    private MapGenerator mapGenerator = new MapGenerator();
     private List<GameObject> tiles = new List<GameObject>();
 
     [SerializeField] private Sprite tileSprite;
@@ -33,23 +33,23 @@ public class MapManager : NetworkBehaviour
 
         compressedMap.OnValueChanged += (previousValue, newValue) =>
         {
-            CreateMap(ConvertStringToTiles(newValue));
+            InstantiateMap(ConvertStringToTiles(newValue));
         };
 
         if (mapIsGenerated.Value && compressedMap.Value.Length > 0)
         {
-            CreateMap(ConvertStringToTiles(compressedMap.Value));
+            InstantiateMap(ConvertStringToTiles(compressedMap.Value));
         }
     }
 
     private void GenerateMap()
     {
-        byte[] _map = mapGeneratorManager.GenerateMap();
+        byte[] _map = mapGenerator.GenerateMap();
         compressedMap.Value = ConvertTilesToString(_map);
         mapIsGenerated.Value = true;
     }
 
-    private void CreateMap(byte[] map)
+    private void InstantiateMap(byte[] _map)
     {
         ClearMap();
         for (int i = 0; i < 10; i++)
@@ -61,7 +61,7 @@ public class MapManager : NetworkBehaviour
 
                 SpriteRenderer _spriteRenderer = _tile.AddComponent<SpriteRenderer>();
                 _spriteRenderer.sprite = tileSprite;
-                switch (map[i * 10 + j])
+                switch (_map[i * 10 + j])
                 {
                     case 1: // Grass
                         _spriteRenderer.color = new Color(43f / 255f, 172f / 255f, 65f / 255f); // rgb(43, 172, 65)
@@ -80,21 +80,21 @@ public class MapManager : NetworkBehaviour
 
     private void ClearMap()
     {
-        foreach (var tile in tiles)
+        foreach (var _tile in tiles)
         {
-            Destroy(tile);
+            Destroy(_tile);
         }
         tiles.Clear();
     }
 
-    private FixedString4096Bytes ConvertTilesToString(byte[] tiles)
+    private FixedString4096Bytes ConvertTilesToString(byte[] _tiles)
     {
-        return new FixedString4096Bytes(string.Join(",", tiles));
+        return new FixedString4096Bytes(string.Join(",", _tiles));
     }
 
-    private byte[] ConvertStringToTiles(FixedString4096Bytes map)
+    private byte[] ConvertStringToTiles(FixedString4096Bytes _mapString)
     {
-        string[] _tiles = map.ToString().Split(',');
+        string[] _tiles = _mapString.ToString().Split(',');
         byte[] _map = new byte[_tiles.Length];
         for (int i = 0; i < _tiles.Length; i++)
         {
