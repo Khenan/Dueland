@@ -14,6 +14,7 @@ public class LoadingPanel : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        root.gameObject.SetActive(true);
         if (NetworkManager.Singleton.IsServer)
         {
             loadingText.text = "Initialization...";

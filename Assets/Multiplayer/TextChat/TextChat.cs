@@ -7,7 +7,6 @@ public class TextChat : MonoBehaviour
 {
     [SerializeField] private TMP_InputField inputField;
     [SerializeField] private TextMeshProUGUI chatText;
-    [SerializeField] private ScrollRect scrollRect;
 
      [SerializeField] private Color32 timeColor;
      [SerializeField] private Color32 playerColor;
@@ -40,7 +39,5 @@ public class TextChat : MonoBehaviour
         string _time = _now.ToString("HH:mm:ss");
         chatText.text += $"<color=#{ColorUtility.ToHtmlStringRGBA(timeColor)}>[{_time}]</color> <color=#{ColorUtility.ToHtmlStringRGBA(playerColor)}>{_playerName}</color>: {_text} {Environment.NewLine}";
         inputField.text = string.Empty;
-
-        Canvas.ForceUpdateCanvases();
     }
 }

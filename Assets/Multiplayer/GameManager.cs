@@ -13,6 +13,8 @@ public class GameManager : NetworkBehaviour
     public NetworkList<ulong> playerIds = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public float GameTime => gameTime.Value;
 
+    [SerializeField] private Sprite tileSprite;
+
     public static Action<GameManager> onGameManagerSpawned;
 
     private static GameManager instance;
@@ -76,37 +78,50 @@ public class GameManager : NetworkBehaviour
                 riverPosition = Mathf.Clamp(riverPosition, 1, 8); // Keep river within bounds
             }
             compressedString.Value = ConvertTilesToString(map);
-            Debug.Log("Compressed string: " + compressedString.Value.ToString());
-            Debug.Log("Compressed string: " + compressedString.Value);
+            Logger.Log("Compressed string: " + compressedString.Value.ToString());
+            Logger.Log("Compressed string: " + compressedString.Value);
 
             GenerateMap(map);
         }
     }
 
+    private List<GameObject> tiles = new List<GameObject>();
     private void GenerateMap(byte[] map)
     {
+        ClearMap();
         for (int i = 0; i < 10; i++)
         {
             for (int j = 0; j < 10; j++)
             {
-                GameObject tile = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                tile.transform.position = new Vector3(i, 0, j);
+                GameObject _tile = new GameObject("Tile");
+                _tile.transform.position = new Vector3(i, j, 0);
 
-                MeshRenderer renderer = tile.GetComponent<MeshRenderer>();
+                SpriteRenderer _spriteRenderer = _tile.AddComponent<SpriteRenderer>();
+                _spriteRenderer.sprite = tileSprite;
                 switch (map[i * 10 + j])
                 {
                     case 1: // Grass
-                        renderer.material.color = Color.green;
+                        _spriteRenderer.color = new Color(43f / 255f, 172f / 255f, 65f / 255f); // rgb(43, 172, 65)
                         break;
                     case 2: // Dirt
-                        renderer.material.color = new Color(0.545f, 0.271f, 0.075f); // Brown color
+                        _spriteRenderer.color = new Color(141f / 255f, 102f / 255f, 80f / 255f); // rgb(141, 102, 80)
                         break;
                     case 3: // Water
-                        renderer.material.color = Color.blue;
+                        _spriteRenderer.color = new Color(39 / 255f, 130 / 255f, 210 / 255f); // rgb(39, 130, 210)
                         break;
                 }
+                tiles.Add(_tile);
             }
         }
+    }
+
+    private void ClearMap()
+    {
+        foreach (var tile in tiles)
+        {
+            Destroy(tile);
+        }
+        tiles.Clear();
     }
 
     private FixedString4096Bytes ConvertTilesToString(byte[] tiles)
@@ -116,7 +131,7 @@ public class GameManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        Debug.Log("Network GameManager Spawned");
+        Logger.Log("Network GameManager Spawned");
         onGameManagerSpawned?.Invoke(this);
         AddClientIdServerRpc(NetworkManager.Singleton.LocalClientId);
     }
@@ -136,14 +151,14 @@ public class GameManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void PingServerRpc()
     {
-        Debug.Log("A client ping Server");
+        Logger.Log("A client ping Server");
         PingClientRpc();
     }
 
     [ClientRpc]
     private void PingClientRpc()
     {
-        Debug.Log("Server ping Client");
+        Logger.Log("Server ping Client");
     }
 
     [ServerRpc(RequireOwnership = false)]

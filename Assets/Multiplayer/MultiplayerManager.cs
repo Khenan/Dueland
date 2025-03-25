@@ -96,7 +96,7 @@ public class MultiplayerManager : MonoBehaviour
 
     private async void Start()
     {
-        Debug.Log("Initializing MultiplayerManager...");
+        Logger.Log("Initializing MultiplayerManager...");
         await Authenticate();
     }
 
@@ -146,14 +146,14 @@ public class MultiplayerManager : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("Lobby is null");
+                        Logger.Log("Lobby is null");
                     }
                 }
             }
         }
         catch (LobbyServiceException _e)
         {
-            Debug.LogError("Failed to update lobby: " + _e.Message);
+            Logger.LogError("Failed to update lobby: " + _e.Message);
         }
     }
 
@@ -162,7 +162,7 @@ public class MultiplayerManager : MonoBehaviour
         Lobby _lobby = joinedLobby;
         foreach (Player _player in _lobby.Players)
         {
-            Debug.Log("Player: " + _player.Id + " | " + _player.Data["PlayerName"].Value);
+            Logger.Log("Player: " + _player.Id + " | " + _player.Data["PlayerName"].Value);
         }
     }
 
@@ -173,7 +173,7 @@ public class MultiplayerManager : MonoBehaviour
 
     private async Task Authenticate(string _playerName)
     {
-        Debug.Log("Authenticating...");
+        Logger.Log("Authenticating...");
         if (UnityServices.State == ServicesInitializationState.Uninitialized)
         {
             InitializationOptions _options = new();
@@ -184,7 +184,7 @@ public class MultiplayerManager : MonoBehaviour
 
         AuthenticationService.Instance.SignedIn += () =>
         {
-            Debug.Log("Signed in as " + AuthenticationService.Instance.PlayerId);
+            Logger.Log("Signed in as " + AuthenticationService.Instance.PlayerId);
         };
 
         if (!AuthenticationService.Instance.IsSignedIn)
@@ -196,7 +196,7 @@ public class MultiplayerManager : MonoBehaviour
             }
             PlayerId = AuthenticationService.Instance.PlayerId;
         }
-        Debug.Log("Authenticating done!");
+        Logger.Log("Authenticating done!");
 
         Initialized = true;
     }
@@ -204,7 +204,7 @@ public class MultiplayerManager : MonoBehaviour
     public async void HostLobby()
     {
         lobbyUI.SetActive(false);
-        Debug.Log("Creating lobby...");
+        Logger.Log("Creating lobby...");
         CreateLobbyOptions _lobbyOptions = new CreateLobbyOptions()
         {
             Player = GetPlayer(),
@@ -213,7 +213,7 @@ public class MultiplayerManager : MonoBehaviour
         bool _success = await CreateCustomLobby("Lobby", maxPlayers, _lobbyOptions);
         if (_success)
         {
-            Debug.Log("Going to game scene...");
+            Logger.Log("Going to game scene...");
             await GotToGameScene();
         }
         else
@@ -225,11 +225,11 @@ public class MultiplayerManager : MonoBehaviour
     public async void JoinLobby()
     {
         lobbyUI.SetActive(false);
-        Debug.Log("Joining lobby...");
+        Logger.Log("Joining lobby...");
         bool _success = await QuickJoinLobby();
         if (_success)
         {
-            Debug.Log("Going to game scene...");
+            Logger.Log("Going to game scene...");
             await GotToGameScene();
         }
         else
@@ -245,7 +245,7 @@ public class MultiplayerManager : MonoBehaviour
         while (!_loadScene.isDone)
         {
             progress = _loadScene.progress;
-            Debug.Log("Loading game scene: " + progress);
+            Logger.Log("Loading game scene: " + progress);
             await Task.Yield();
         }
     }
@@ -282,7 +282,7 @@ public class MultiplayerManager : MonoBehaviour
                 _maxPlayers,
                 _options
             );
-            Debug.Log("Lobby created: " + _lobby.Name + " with code: " + _lobby.LobbyCode);
+            Logger.Log("Lobby created: " + _lobby.Name + " with code: " + _lobby.LobbyCode);
 
             RelayServerData _relayServerData = AllocationUtils.ToRelayServerData(
                 _allocation,
@@ -299,7 +299,7 @@ public class MultiplayerManager : MonoBehaviour
         }
         catch (LobbyServiceException _e)
         {
-            Debug.LogError("Failed to create lobby: " + _e.Message);
+            Logger.LogError("Failed to create lobby: " + _e.Message);
         }
         return Task.FromResult(_result).Result;
     }
@@ -344,12 +344,12 @@ public class MultiplayerManager : MonoBehaviour
                     AllocationUtils.ToRelayServerData(_joinAllocation, ConnectionType)
                 );
             NetworkManager.Singleton.StartClient();
-            Debug.Log("Quick joined lobby: " + joinedLobby.Name + " with code: " + joinedLobby.LobbyCode + (joinedLobby.IsLocked ? "Locked" : "Unlocked"));
+            Logger.Log("Quick joined lobby: " + joinedLobby.Name + " with code: " + joinedLobby.LobbyCode + (joinedLobby.IsLocked ? "Locked" : "Unlocked"));
             _result = true;
         }
         catch (LobbyServiceException _e)
         {
-            Debug.LogError("Failed to quick join lobby: " + _e.Message);
+            Logger.LogError("Failed to quick join lobby: " + _e.Message);
         }
         return Task.FromResult(_result).Result;
     }
@@ -374,12 +374,12 @@ public class MultiplayerManager : MonoBehaviour
             }
             NetworkManager.Singleton.Shutdown();
             joinedLobby = null;
-            Debug.Log("Left lobby");
+            Logger.Log("Left lobby");
             _result = true;
         }
         catch (LobbyServiceException _exception)
         {
-            Debug.Log("Failed to leave lobby: " + _exception.Message);
+            Logger.Log("Failed to leave lobby: " + _exception.Message);
         }
         return Task.FromResult(_result).Result;
     }
@@ -391,11 +391,11 @@ public class MultiplayerManager : MonoBehaviour
             await LobbyService.Instance.DeleteLobbyAsync(joinedLobby.Id);
             NetworkManager.Singleton.Shutdown();
             joinedLobby = null;
-            Debug.Log("Deleted lobby !");
+            Logger.Log("Deleted lobby !");
         }
         catch (LobbyServiceException _exception)
         {
-            Debug.LogError("Failed to delete lobby: " + _exception.Message);
+            Logger.LogError("Failed to delete lobby: " + _exception.Message);
         }
     }
 
@@ -412,7 +412,7 @@ public class MultiplayerManager : MonoBehaviour
         }
         catch (RelayServiceException _e)
         {
-            Debug.LogError("Failed to allocate relay: " + _e.Message);
+            Logger.LogError("Failed to allocate relay: " + _e.Message);
             return default;
         }
     }
@@ -429,7 +429,7 @@ public class MultiplayerManager : MonoBehaviour
         }
         catch (RelayServiceException _e)
         {
-            Debug.LogError("Failed to get relay join code: " + _e.Message);
+            Logger.LogError("Failed to get relay join code: " + _e.Message);
             return default;
         }
     }
@@ -445,7 +445,7 @@ public class MultiplayerManager : MonoBehaviour
         }
         catch (RelayServiceException _e)
         {
-            Debug.LogError("Failed to join relay: " + _e.Message);
+            Logger.LogError("Failed to join relay: " + _e.Message);
             return default;
         }
     }
