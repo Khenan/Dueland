@@ -7,7 +7,12 @@ public class HostSpawner : MonoBehaviour
 {
     [SerializeField] List<NetworkObject> networkObjects = new List<NetworkObject>();
 
-    async Task Start()
+    void Start()
+    {
+        StartAsync();
+    }
+
+    private async void StartAsync()
     {
         if (LoadingPanel.Instance != null)
         {
@@ -24,11 +29,6 @@ public class HostSpawner : MonoBehaviour
                 }
 
                 NetworkObject[] _networkObject = await InstantiateAsync(networkObject);
-
-                if (LoadingPanel.Instance != null)
-                {
-                    LoadingPanel.Instance.ObjectLoaded();
-                }
                 _networkObject[0].Spawn();
             }
         }
