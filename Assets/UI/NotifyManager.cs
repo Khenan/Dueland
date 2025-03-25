@@ -15,17 +15,17 @@ public class NotifyManager : MonoBehaviour
 
     }
 
-    public void ShowNotifyText(string _text)
+    public void ShowNotifyText(string _text, float _time)
     {
         NotifyText _notifyText = Instantiate(notifyTextPrefab, notifyTextParent);
-        _notifyText.SetText(_text);
+        _notifyText.Initalize(_text, _time);
     }
 
     public void SendNotifyToPlayer(ulong _playerId)
     {
         if (NetworkManager.Singleton.LocalClientId == _playerId)
         {
-            ShowNotifyText("It's your turn!");
+            ShowNotifyText("It's your turn!", 1.5f);
         }
     }
 }
