@@ -1,34 +1,35 @@
+using System.Linq;
 using UnityEngine;
 
 public class MapGenerator
 {
-    public byte[] GenerateMap()
+    public byte[] GenerateMap(int _mapSize)
     {
         // 1 = grass, 2 = dirt, 3 = water
-        byte[] _map = new byte[100];
+        byte[] _map = Enumerable.Repeat((byte)1, _mapSize * _mapSize).ToArray();
         System.Random rand = new System.Random();
         int _riverPosition = 4;
 
-        for (int i = 0; i < 10; i++)
+        for (int _y = 0; _y < _mapSize; _y++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int _x = 0; _x < _mapSize; _x++)
             {
-                if (j == _riverPosition || j == _riverPosition + 1) // River with noise
+                if (_x == _riverPosition || _x == _riverPosition + 1) // River with noise
                 {
-                    _map[i * 10 + j] = 3; // Water
+                    _map[_y * _mapSize + _x] = 3; // Water
                 }
-                else if (j == _riverPosition - 1 || j == _riverPosition + 2) // Dirt along the river
+                else if (_x == _riverPosition - 1 || _x == _riverPosition + 2) // Dirt along the river
                 {
-                    _map[i * 10 + j] = 2; // Dirt
+                    _map[_y * _mapSize + _x] = 2; // Dirt
                 }
                 else
                 {
-                    _map[i * 10 + j] = 1; // Grass
+                    _map[_y * _mapSize + _x] = 1; // Grass
                 }
             }
             // Add noise to the river position
             _riverPosition += rand.Next(-1, 2);
-            _riverPosition = Mathf.Clamp(_riverPosition, 1, 8); // Keep river within bounds
+            _riverPosition = Mathf.Clamp(_riverPosition, 1, _mapSize - 2); // Keep river within bounds
         }
         return _map;
     }

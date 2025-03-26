@@ -18,7 +18,7 @@ public class GameTime : MonoBehaviour
         {
             GameManager.onGameManagerSpawned += (GameManager _gameManager) =>
             {
-                Debug.Log("Game Manager Spawned");
+                Logger.Log("GameTime Getting GameManager from event");
                 gameManager = _gameManager;
             };
         }

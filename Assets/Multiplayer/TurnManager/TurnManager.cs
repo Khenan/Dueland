@@ -11,11 +11,13 @@ public class TurnManager : NetworkBehaviour
     private NetworkVariable<float> turnTime = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<ulong> turnPlayerId = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private GameManager gameManager;
+    public bool IsMyTurn => NetworkManager.Singleton.LocalClientId == turnPlayerId.Value;
     public static Action<ulong> onEndTurn;
     public static TurnManager Instance { get; private set; }
     void Awake()
     {
         Instance = this;
+
         if (NetworkManager.Singleton.IsServer)
         {
             if (GameManager.Instance != null)
@@ -118,10 +120,7 @@ public class TurnManager : NetworkBehaviour
     [ClientRpc]
     private void NextTurnClientRpc(ulong _turnPlayerId)
     {
-        if (NetworkManager.Singleton.LocalClientId == _turnPlayerId)
-        {
-            endTurnButton.interactable = true;
-            onEndTurn?.Invoke(_turnPlayerId);
-        }
+        endTurnButton.interactable = NetworkManager.Singleton.LocalClientId == _turnPlayerId;
+        onEndTurn?.Invoke(_turnPlayerId);
     }
 }

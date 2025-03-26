@@ -203,7 +203,7 @@ public class MultiplayerManager : MonoBehaviour
 
     public async void HostLobby()
     {
-        lobbyUI.SetActive(false);
+        if (lobbyUI != null) lobbyUI.SetActive(false);
         Logger.Log("Creating lobby...");
         CreateLobbyOptions _lobbyOptions = new CreateLobbyOptions()
         {
@@ -218,13 +218,13 @@ public class MultiplayerManager : MonoBehaviour
         }
         else
         {
-            lobbyUI.SetActive(true);
+            if (lobbyUI != null) lobbyUI.SetActive(true);
         }
     }
 
     public async void JoinLobby()
     {
-        lobbyUI.SetActive(false);
+        if (lobbyUI != null) lobbyUI.SetActive(false);
         Logger.Log("Joining lobby...");
         bool _success = await QuickJoinLobby();
         if (_success)
@@ -234,7 +234,7 @@ public class MultiplayerManager : MonoBehaviour
         }
         else
         {
-            lobbyUI.SetActive(true);
+            if (lobbyUI != null) lobbyUI.SetActive(true);
         }
     }
 
