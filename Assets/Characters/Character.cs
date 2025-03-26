@@ -13,6 +13,14 @@ public class Character : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     internal void MoveToTileServerRpc(int _x, int _y)
     {
+        Tile _tile = MapManager.Instance.GetTileByMatrixPosition(_x, _y);
+        transform.position = _tile.transform.position;
+        MoveToTileClientRpc(_x, _y);
+    }
+
+    [ClientRpc]
+    internal void MoveToTileClientRpc(int _x, int _y)
+    {
         matrixPosition.Value = new Vector2Int(_x, _y);
         Tile _tile = MapManager.Instance.GetTileByMatrixPosition(_x, _y);
         transform.position = _tile.transform.position;

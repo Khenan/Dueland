@@ -54,17 +54,17 @@ public class MapManager : NetworkBehaviour
     private void InstantiateMap(byte[] _map)
     {
         ClearMap();
-        for (int i = 0; i < 10; i++)
+        for (int _y = 0; _y < mapSize; _y++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int _x = 0; _x < mapSize; _x++)
             {
                 Tile _tile = Instantiate(tilePrefab);
-                _tile.transform.position = new Vector3(i, j, 0);
-                _tile.Init(new Vector2Int(i, j));
+                _tile.transform.position = new Vector3(_x, _y, 0);
+                _tile.Init(new Vector2Int(_x, _y));
 
                 SpriteRenderer _spriteRenderer = _tile.gameObject.AddComponent<SpriteRenderer>();
                 _spriteRenderer.sprite = tileSprite;
-                switch (_map[i * 10 + j])
+                switch (_map[_y * mapSize + _x])
                 {
                     case 1: // Grass
                         _spriteRenderer.color = new Color(43f / 255f, 172f / 255f, 65f / 255f); // rgb(43, 172, 65)

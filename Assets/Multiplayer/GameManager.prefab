@@ -74,4 +74,4 @@ MonoBehaviour:
   IsGameStarted:
     m_InternalValue: 0
   maxPlayers: 2
-  allPlayersConnected: 0
+  allPlayersConnected: 1
