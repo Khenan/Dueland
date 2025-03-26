@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
 
 public class Character : NetworkBehaviour
 {
@@ -15,21 +16,13 @@ public class Character : NetworkBehaviour
     {
         Tile _tile = MapManager.Instance.GetTileByMatrixPosition(_x, _y);
         transform.position = _tile.transform.position;
-        MoveToTileClientRpc(_x, _y);
-    }
-
-    [ClientRpc]
-    internal void MoveToTileClientRpc(int _x, int _y)
-    {
-        matrixPosition.Value = new Vector2Int(_x, _y);
-        Tile _tile = MapManager.Instance.GetTileByMatrixPosition(_x, _y);
-        transform.position = _tile.transform.position;
     }
 
     public void MoveToTile(Tile _tile)
     {
         if (IsOwner)
         {
+            matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
             Logger.Log("MoveToTile called by owner.");
             MoveToTileServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
         }
