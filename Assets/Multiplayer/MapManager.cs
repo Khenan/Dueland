@@ -11,6 +11,7 @@ public class MapManager : NetworkBehaviour
     private NetworkVariable<FixedString4096Bytes> compressedMap = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> mapIsGenerated = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    private int mapSize = 10;
     private MapGenerator mapGenerator = new MapGenerator();
     private List<Tile> tiles = new List<Tile>();
 
@@ -45,7 +46,7 @@ public class MapManager : NetworkBehaviour
 
     private void GenerateMap()
     {
-        byte[] _map = mapGenerator.GenerateMap();
+        byte[] _map = mapGenerator.GenerateMap(mapSize);
         compressedMap.Value = ConvertTilesToString(_map);
         mapIsGenerated.Value = true;
     }
@@ -105,15 +106,8 @@ public class MapManager : NetworkBehaviour
         return _map;
     }
 
-    internal Tile GetTileByMatrixPosition(Vector2 matrixPosition)
+    internal Tile GetTileByMatrixPosition(int _x, int _y)
     {
-        foreach (var _tile in tiles)
-        {
-            if (_tile.MatrixPosition == matrixPosition)
-            {
-                return _tile;
-            }
-        }
-        return null;
+        return tiles[_x + _y * mapSize];
     }
 }

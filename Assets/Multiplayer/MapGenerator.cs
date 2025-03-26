@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class MapGenerator
 {
-    public byte[] GenerateMap()
+    public byte[] GenerateMap(int _mapSize)
     {
         // 1 = grass, 2 = dirt, 3 = water
-        byte[] _map = new byte[100];
+        byte[] _map = new byte[_mapSize * _mapSize];
         System.Random rand = new System.Random();
         int _riverPosition = 4;
 
