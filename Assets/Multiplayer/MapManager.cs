@@ -11,10 +11,12 @@ public class MapManager : NetworkBehaviour
     private NetworkVariable<FixedString4096Bytes> compressedMap = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> mapIsGenerated = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    private int mapSize = 10;
     private MapGenerator mapGenerator = new MapGenerator();
-    private List<GameObject> tiles = new List<GameObject>();
+    private List<Tile> tiles = new List<Tile>();
 
     [SerializeField] private Sprite tileSprite;
+    [SerializeField] private Tile tilePrefab;
 
     void Awake()
     {
@@ -44,7 +46,7 @@ public class MapManager : NetworkBehaviour
 
     private void GenerateMap()
     {
-        byte[] _map = mapGenerator.GenerateMap();
+        byte[] _map = mapGenerator.GenerateMap(mapSize);
         compressedMap.Value = ConvertTilesToString(_map);
         mapIsGenerated.Value = true;
     }
@@ -52,16 +54,17 @@ public class MapManager : NetworkBehaviour
     private void InstantiateMap(byte[] _map)
     {
         ClearMap();
-        for (int i = 0; i < 10; i++)
+        for (int _y = 0; _y < mapSize; _y++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int _x = 0; _x < mapSize; _x++)
             {
-                GameObject _tile = new GameObject("Tile");
-                _tile.transform.position = new Vector3(i, j, 0);
+                Tile _tile = Instantiate(tilePrefab);
+                _tile.transform.position = new Vector3(_x, _y, 0);
+                _tile.Init(new Vector2Int(_x, _y));
 
-                SpriteRenderer _spriteRenderer = _tile.AddComponent<SpriteRenderer>();
+                SpriteRenderer _spriteRenderer = _tile.gameObject.AddComponent<SpriteRenderer>();
                 _spriteRenderer.sprite = tileSprite;
-                switch (_map[i * 10 + j])
+                switch (_map[_y * mapSize + _x])
                 {
                     case 1: // Grass
                         _spriteRenderer.color = new Color(43f / 255f, 172f / 255f, 65f / 255f); // rgb(43, 172, 65)
@@ -82,7 +85,7 @@ public class MapManager : NetworkBehaviour
     {
         foreach (var _tile in tiles)
         {
-            Destroy(_tile);
+            Destroy(_tile.gameObject);
         }
         tiles.Clear();
     }
@@ -101,5 +104,10 @@ public class MapManager : NetworkBehaviour
             _map[i] = byte.Parse(_tiles[i]);
         }
         return _map;
+    }
+
+    internal Tile GetTileByMatrixPosition(int _x, int _y)
+    {
+        return tiles[_x + _y * mapSize];
     }
 }

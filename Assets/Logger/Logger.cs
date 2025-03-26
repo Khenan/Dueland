@@ -25,6 +25,12 @@ public class Logger : MonoBehaviour
         if (Instance != null) Instance.logText.text += _message + "\n";
     }
 
+    public static void LogWarning(string _message)
+    {
+        Debug.LogError("<b>[Logger]</b> " + _message);
+        if (Instance != null) Instance.logText.text += "<color=yellow>[Warning]</color> " + _message + "\n";
+    }
+
     public static void LogError(string _message)
     {
         Debug.LogError("<b>[Logger]</b> " + _message);

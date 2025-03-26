@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,6 +8,8 @@ public class GameManager : NetworkBehaviour
     private NetworkVariable<float> gameTime = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkList<ulong> playerIds = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public float GameTime => gameTime.Value;
+
+    [SerializeField] private int maxPlayers = 2;
 
     public static Action<GameManager> onGameManagerSpawned;
 
@@ -26,6 +26,7 @@ public class GameManager : NetworkBehaviour
         }
     }
     public Action OnAllPlayersConnected { get; set; }
+    public bool allPlayersConnected;
 
     void Update()
     {
@@ -37,13 +38,15 @@ public class GameManager : NetworkBehaviour
         if (NetworkManager.Singleton.IsServer)
         {
             gameTime.Value += Time.deltaTime;
-
-            if (!IsGameStarted.Value && MultiplayerManager.Instance.JoinedLobby.Players.Count == 2)
-            {
-                IsGameStarted.Value = true;
-                OnAllPlayersConnected?.Invoke();
-            }
         }
+    }
+
+    private void AllPlayersConnected()
+    {
+        Logger.Log("All players connected");
+        OnAllPlayersConnected?.Invoke();
+        allPlayersConnected = true;
+        IsGameStarted.Value = true;
     }
 
     public override void OnNetworkSpawn()
@@ -58,6 +61,10 @@ public class GameManager : NetworkBehaviour
     private void AddClientIdServerRpc(ulong _clientId)
     {
         playerIds.Add(_clientId);
+        if(playerIds.Count == maxPlayers)
+        {
+            AllPlayersConnected();
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
