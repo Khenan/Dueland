@@ -13,8 +13,13 @@ public class TurnManager : NetworkBehaviour
 
     private GameManager gameManager;
 
+    public static TurnManager Instance { get; private set; }
+    public bool IsMyTurn => NetworkManager.Singleton.LocalClientId == turnPlayerId.Value;
+
     void Awake()
     {
+        Instance = this;
+
         if (NetworkManager.Singleton.IsServer)
         {
             if (GameManager.Instance != null)

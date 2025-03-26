@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3261532878
+  GlobalObjectIdHash: 2571057150
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -72,3 +72,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   tileSprite: {fileID: 7482667652216324306, guid: 1967046b8e430d246b737bcab774f0ee, type: 3}
+  tilePrefab: {fileID: 6801090539707666468, guid: 6465cdb9d1b02264fbb979a8c6bd339f, type: 3}

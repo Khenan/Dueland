@@ -12,9 +12,10 @@ public class MapManager : NetworkBehaviour
     private NetworkVariable<bool> mapIsGenerated = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private MapGenerator mapGenerator = new MapGenerator();
-    private List<GameObject> tiles = new List<GameObject>();
+    private List<Tile> tiles = new List<Tile>();
 
     [SerializeField] private Sprite tileSprite;
+    [SerializeField] private Tile tilePrefab;
 
     void Awake()
     {
@@ -56,10 +57,11 @@ public class MapManager : NetworkBehaviour
         {
             for (int j = 0; j < 10; j++)
             {
-                GameObject _tile = new GameObject("Tile");
+                Tile _tile = Instantiate(tilePrefab);
                 _tile.transform.position = new Vector3(i, j, 0);
+                _tile.Init(new Vector2(i, j));
 
-                SpriteRenderer _spriteRenderer = _tile.AddComponent<SpriteRenderer>();
+                SpriteRenderer _spriteRenderer = _tile.gameObject.AddComponent<SpriteRenderer>();
                 _spriteRenderer.sprite = tileSprite;
                 switch (_map[i * 10 + j])
                 {
@@ -82,7 +84,7 @@ public class MapManager : NetworkBehaviour
     {
         foreach (var _tile in tiles)
         {
-            Destroy(_tile);
+            Destroy(_tile.gameObject);
         }
         tiles.Clear();
     }

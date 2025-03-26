@@ -73,4 +73,5 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   IsGameStarted:
     m_InternalValue: 0
-  tileSprite: {fileID: 7482667652216324306, guid: 1967046b8e430d246b737bcab774f0ee, type: 3}
+  maxPlayers: 2
+  allPlayersConnected: 0

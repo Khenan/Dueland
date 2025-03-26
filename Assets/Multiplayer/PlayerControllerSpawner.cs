@@ -9,7 +9,7 @@ public class PlayerControllerSpawner : MonoBehaviour
     {
         if (NetworkManager.Singleton.IsServer)
         {
-            if (GameManager.Instance != null && GameManager.Instance.allPlayersConnected && GameManager.Instance.playerIds.Count == 2)
+            if (GameManager.Instance != null && GameManager.Instance.allPlayersConnected)
             {
                 foreach (var playerId in GameManager.Instance.playerIds)
                 {

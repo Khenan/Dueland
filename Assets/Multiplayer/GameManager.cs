@@ -9,6 +9,8 @@ public class GameManager : NetworkBehaviour
     public NetworkList<ulong> playerIds = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public float GameTime => gameTime.Value;
 
+    [SerializeField] private int maxPlayers = 2;
+
     public static Action<GameManager> onGameManagerSpawned;
 
     private static GameManager instance;
@@ -59,7 +61,7 @@ public class GameManager : NetworkBehaviour
     private void AddClientIdServerRpc(ulong _clientId)
     {
         playerIds.Add(_clientId);
-        if(playerIds.Count == 2)
+        if(playerIds.Count == maxPlayers)
         {
             AllPlayersConnected();
         }
