@@ -62,12 +62,6 @@ public class PlayerController : NetworkBehaviour
         {
             Logger.Log("Mouse Clicked");
 
-            if (Camera.main == null)
-            {
-                Logger.LogError("Main Camera is not found.");
-                return;
-            }
-
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D _hit2D = Physics2D.Raycast(ray.origin, ray.direction);
             if (_hit2D.collider != null)

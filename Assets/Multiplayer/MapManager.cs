@@ -59,7 +59,7 @@ public class MapManager : NetworkBehaviour
             {
                 Tile _tile = Instantiate(tilePrefab);
                 _tile.transform.position = new Vector3(i, j, 0);
-                _tile.Init(new Vector2(i, j));
+                _tile.Init(new Vector2Int(i, j));
 
                 SpriteRenderer _spriteRenderer = _tile.gameObject.AddComponent<SpriteRenderer>();
                 _spriteRenderer.sprite = tileSprite;
@@ -103,5 +103,17 @@ public class MapManager : NetworkBehaviour
             _map[i] = byte.Parse(_tiles[i]);
         }
         return _map;
+    }
+
+    internal Tile GetTileByMatrixPosition(Vector2 matrixPosition)
+    {
+        foreach (var _tile in tiles)
+        {
+            if (_tile.MatrixPosition == matrixPosition)
+            {
+                return _tile;
+            }
+        }
+        return null;
     }
 }

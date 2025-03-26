@@ -122,9 +122,6 @@ public class TurnManager : NetworkBehaviour
     [ClientRpc]
     private void NextTurnClientRpc(ulong _turnPlayerId)
     {
-        if (NetworkManager.Singleton.LocalClientId == _turnPlayerId)
-        {
-            endTurnButton.interactable = true;
-        }
+        endTurnButton.interactable = NetworkManager.Singleton.LocalClientId == _turnPlayerId;
     }
 }
