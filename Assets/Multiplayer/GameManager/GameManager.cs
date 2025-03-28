@@ -1,15 +1,21 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class GameManager : NetworkBehaviour
 {
     public NetworkVariable<bool> IsGameStarted = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<bool> allPlayersConnected = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<bool> allCharactersSpawned = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<float> gameTime = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkList<ulong> playerIds = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkList<NetworkObjectReference> characters = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     public float GameTime => gameTime.Value;
 
     [SerializeField] private int maxPlayers = 2;
+    public int MaxPlayers => maxPlayers;
 
     public static Action<GameManager> onGameManagerSpawned;
 
@@ -26,27 +32,14 @@ public class GameManager : NetworkBehaviour
         }
     }
     public Action OnAllPlayersConnected { get; set; }
-    public bool allPlayersConnected;
+    public Action OnAllCharactersSpawned { get; set; }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            PingServerRpc();
-        }
-
         if (NetworkManager.Singleton.IsServer)
         {
             gameTime.Value += Time.deltaTime;
         }
-    }
-
-    private void AllPlayersConnected()
-    {
-        Logger.Log("All players connected");
-        OnAllPlayersConnected?.Invoke();
-        allPlayersConnected = true;
-        IsGameStarted.Value = true;
     }
 
     public override void OnNetworkSpawn()
@@ -61,24 +54,33 @@ public class GameManager : NetworkBehaviour
     private void AddClientIdServerRpc(ulong _clientId)
     {
         playerIds.Add(_clientId);
-        if(playerIds.Count == maxPlayers)
+        if (playerIds.Count == maxPlayers)
         {
-            AllPlayersConnected();
+            allPlayersConnected.Value = true;
+            AllPlayersConnectedClientRpc();
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void PingServerRpc()
+    [ClientRpc]
+    private void AllPlayersConnectedClientRpc()
     {
-        Logger.Log("A client ping Server");
-        PingClientRpc();
+        Logger.Log("All players connected");
+        OnAllPlayersConnected?.Invoke();
     }
 
-    [ClientRpc]
-    private void PingClientRpc()
+    [ServerRpc(RequireOwnership = false)]
+    internal void AddCharacterServerRpc(NetworkObjectReference _character)
     {
-        Logger.Log("Server ping Client");
+        characters.Add(_character);
+        if (characters.Count == maxPlayers)
+        {
+            allCharactersSpawned.Value = true;
+            IsGameStarted.Value = true;
+            OnAllCharactersSpawned?.Invoke();
+        }
     }
+
+    #region TextChat
 
     [ServerRpc(RequireOwnership = false)]
     public void AddTextChatServerRpc(string _text, string _playerName)
@@ -91,4 +93,6 @@ public class GameManager : NetworkBehaviour
     {
         TextChat.Instance.AddText(text, _playerName);
     }
+
+    #endregion
 }

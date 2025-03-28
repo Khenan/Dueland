@@ -5,7 +5,8 @@ using UnityEngine;
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private Character characterPrefab;
-    private Character character;
+
+    private Tile currentHoverTile;
 
     public override void OnNetworkSpawn()
     {
@@ -16,30 +17,13 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void SpawnCharacterServerRpc()
     {
         Character _character = Instantiate(characterPrefab);
-        character = _character;
 
         NetworkObject _characterNetworkObject = _character.GetComponent<NetworkObject>();
         _characterNetworkObject.SpawnWithOwnership(OwnerClientId);
-
-        SpawnCharacterClientRpc();
-    }
-
-    [ClientRpc]
-    public void SpawnCharacterClientRpc()
-    {
-        Character[] _characters = FindObjectsByType<Character>(FindObjectsSortMode.None);
-        foreach (var _character in _characters)
-        {
-            if (_character.OwnerClientId == OwnerClientId)
-            {
-                character = _character;
-                break;
-            }
-        }
     }
 
     public void Update()
@@ -62,8 +46,8 @@ public class PlayerController : NetworkBehaviour
         {
             Logger.Log("Mouse Clicked");
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D _hit2D = Physics2D.Raycast(ray.origin, ray.direction);
+            Ray _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D _hit2D = Physics2D.Raycast(_ray.origin, _ray.direction);
             if (_hit2D.collider != null)
             {
                 Logger.Log("2D Collider hit: " + _hit2D.collider.name);
@@ -71,29 +55,26 @@ public class PlayerController : NetworkBehaviour
                 {
                     MoveCharacter(_tile);
                 }
-                else
-                {
-                    Logger.LogWarning("Hit object does not have a Tile component.");
-                }
-
-                Debug.DrawLine(ray.origin, _hit2D.point, Color.red, 2f);
+                else Logger.LogWarning("Hit object does not have a Tile component.");
             }
-            else
-            {
-                Logger.LogWarning("Raycast did not hit any object.");
-            }
+            else Logger.LogWarning("Raycast did not hit any object.");
         }
     }
 
     private void MoveCharacter(Tile tile)
     {
-        if (character != null)
+        // Check if the current turnCharacter has the same owner as this player
+        if (TurnManager.Instance.characterReferenceTurn.Value.TryGet(out NetworkObject _networkObject))
         {
-            character.MoveToTile(tile);
+            if (_networkObject.OwnerClientId == OwnerClientId)
+            {
+                if (_networkObject.TryGetComponent(out Character _character))
+                {
+                    _character.MoveToTile(tile);
+                }
+            }
+            else Logger.LogWarning("Not your turn.");
         }
-        else
-        {
-            Logger.LogError("Character is null");
-        }
+        else Logger.LogError("Character is null");
     }
 }
