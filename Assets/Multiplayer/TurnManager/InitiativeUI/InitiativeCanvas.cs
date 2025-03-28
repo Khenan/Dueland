@@ -50,6 +50,7 @@ public class InitiativeCanvas : MonoBehaviour
         for (int i = 0; i < GameManager.Instance.characters.Count; i++)
         {
             InitiativeSlot _slot = Instantiate(initiativeSlotPrefab, slotsParent);
+            slots.Add(_slot);
             if (GameManager.Instance.characters[i].TryGet(out NetworkObject _networkObject))
             {
                 if (_networkObject.TryGetComponent(out Character _character))
@@ -64,8 +65,11 @@ public class InitiativeCanvas : MonoBehaviour
 
     private void UpdateSlots(ulong _clientId)
     {
+        Logger.Log("Update Slots: " + _clientId);
         foreach (InitiativeSlot _slot in slots)
         {
+            Logger.Log("Slot ClientId: " + _slot.Character.OwnerClientId);
+            Logger.Log("Current ClientId: " + _clientId);
             _slot.SetOutline(_slot.Character.OwnerClientId == _clientId);
         }
     }
