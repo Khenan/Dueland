@@ -15,6 +15,7 @@ public class InitiativeSlot : MonoBehaviour
     {
         character = _character;
         character.Data.OnLifeChanged += UpdateLife;
+        avatar.color = character.Color;
         UpdateLife();
     }
 

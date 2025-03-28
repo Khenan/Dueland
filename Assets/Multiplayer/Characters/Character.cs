@@ -6,6 +6,7 @@ using System;
 public class Character : NetworkBehaviour
 {
     private NetworkVariable<Vector2Int> matrixPosition = new NetworkVariable<Vector2Int>(new Vector2Int(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public Color Color { get; private set; }
 
     public CharacterData Data { get; private set; }
 
@@ -18,6 +19,11 @@ public class Character : NetworkBehaviour
         {
             GameManager.Instance.AddCharacterServerRpc(GetComponent<NetworkObject>());
         }
+
+        if((int)OwnerClientId < GameManager.Instance.colors.Length)
+            ColorizeCharacter(GameManager.Instance.colors[OwnerClientId]);
+        else
+            Logger.LogError("OwnerClientId is out of bounds for colors array: " + OwnerClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -38,6 +44,20 @@ public class Character : NetworkBehaviour
         else
         {
             Logger.Log("MoveToTile called by non-owner.");
+        }
+    }
+
+    internal void ColorizeCharacter(Color _color)
+    {
+        Color = _color;
+        SpriteRenderer _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = _color;
+        }
+        else
+        {
+            Logger.LogError("SpriteRenderer not found on character.");
         }
     }
 }

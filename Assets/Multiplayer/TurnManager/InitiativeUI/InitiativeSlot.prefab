@@ -164,3 +164,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bdcf8714f7303247bc21adfd071ff3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  avatar: {fileID: 3133667701532481861}
+  lifebar: {fileID: 0}
+  lifeText: {fileID: 0}

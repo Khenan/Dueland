@@ -34,6 +34,18 @@ public class GameManager : NetworkBehaviour
     public Action OnAllPlayersConnected { get; set; }
     public Action OnAllCharactersSpawned { get; set; }
 
+    #region Colors Characters
+
+    public Color[] colors = new Color[4]
+    {
+        new Color(0.8f, 0.2f, 0.2f),
+        new Color(0.2f, 0.2f, 0.8f),
+        new Color(0.2f, 0.8f, 0.2f),
+        new Color(0.8f, 0.8f, 0.2f)
+    };
+
+    #endregion
+
     void Update()
     {
         if (NetworkManager.Singleton.IsServer)
