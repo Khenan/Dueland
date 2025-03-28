@@ -9,12 +9,9 @@ public class PlayerControllerSpawner : MonoBehaviour
     {
         if (NetworkManager.Singleton.IsServer)
         {
-            if (GameManager.Instance != null && GameManager.Instance.allPlayersConnected)
+            if (GameManager.Instance != null && GameManager.Instance.allPlayersConnected.Value)
             {
-                foreach (var playerId in GameManager.Instance.playerIds)
-                {
-                    SpawnPlayer(playerId);
-                }
+                SpawnPlayers();
             }
             else
             {
@@ -22,10 +19,7 @@ public class PlayerControllerSpawner : MonoBehaviour
                 {
                     gameManager.OnAllPlayersConnected += () =>
                     {
-                        foreach (var playerId in gameManager.playerIds)
-                        {
-                            SpawnPlayer(playerId);
-                        }
+                        SpawnPlayers();
                     };
                 };
             }
@@ -36,9 +30,17 @@ public class PlayerControllerSpawner : MonoBehaviour
         }
     }
 
-    private void SpawnPlayer(ulong _clientId)
+    private void SpawnPlayers()
+    {
+        foreach (var _playerId in GameManager.Instance.playerIds)
+        {
+            SpawnPlayer(_playerId);
+        }
+    }
+
+    private void SpawnPlayer(ulong _playerId)
     {
         NetworkObject _playerController = Instantiate(playerControllerPrefab);
-        _playerController.SpawnWithOwnership(_clientId);
+        _playerController.SpawnWithOwnership(_playerId);
     }
 }

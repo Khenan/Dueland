@@ -11,7 +11,7 @@ public class NotifyManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        TurnManager.onEndTurn += SendNotifyToPlayer;
+        TurnManager.onNextTurn += SendNotifyToPlayer;
 
     }
 
