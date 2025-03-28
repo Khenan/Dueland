@@ -27,7 +27,7 @@ public class TurnManager : NetworkBehaviour
             return _isMyTurn;
         }
     }
-    public static Action<ulong> onEndTurn;
+    public static Action<ulong> onNextTurn;
     public static TurnManager Instance { get; private set; }
     public static Action onInitialization;
 
@@ -68,49 +68,31 @@ public class TurnManager : NetworkBehaviour
             }
         }
         timerText.text = $"{turnTime.Value:0}";
-
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            Logger.Log($"my id: {NetworkManager.Singleton.LocalClientId}");
-            if (characterReferenceTurn != null && characterReferenceTurn.Value.TryGet(out NetworkObject _networkObject))
-            {
-                Logger.Log($"Turn id: {_networkObject.OwnerClientId}");
-            }
-            // Log characters count
-            Logger.Log("gameManager.characters.Count: " + GameManager.Instance.characters.Count);
-        }
     }
 
     public override void OnNetworkSpawn()
     {
         LoadingPanel.Instance.ObjectLoaded();
 
-        Logger.Log("TurnManager OnNetworkSpawn");
-
         if (NetworkManager.Singleton.IsServer)
         {
-            Logger.Log("TurnManager OnNetworkSpawn IsServer");
             if (GameManager.Instance != null)
             {
                 gameManager = GameManager.Instance;
 
                 if (GameManager.Instance.allCharactersSpawned.Value)
                 {
-                    Logger.Log("TurnManager GameManager.Instance.allCharactersSpawned.Value");
                     Init();
                 }
                 else
                 {
-                    Logger.Log("TurnManager GameManager.Instance.allCharactersSpawned.Value else");
                     gameManager.OnAllCharactersSpawned += Init;
                 }
             }
             else
             {
-                Logger.Log("TurnManager OnNetworkSpawn IsServer");
                 GameManager.onGameManagerSpawned += (GameManager _gameManager) =>
                 {
-                    Logger.Log("TurnManager _gameManager OnAllCharactersSpawned");
                     gameManager = _gameManager;
                     _gameManager.OnAllCharactersSpawned += Init;
                 };
@@ -122,10 +104,14 @@ public class TurnManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsServer)
         {
-            Debug.Log("TurnManager Init IsServer");
-            characterReferenceTurn.Value = gameManager.characters[Random.Range(0, gameManager.characters.Count)];
+            int _randomIndex = Random.Range(0, gameManager.characters.Count);
+            characterReferenceTurn.Value = gameManager.characters[_randomIndex];
             turnTime.Value = timeTurnDuration;
             isInitialized.Value = true;
+
+            // Get the client ID of the character that starts the turn
+            ulong _clientId = characterReferenceTurn.Value.TryGet(out NetworkObject _networkObject) ? _networkObject.OwnerClientId : 0;
+            NextTurnClientRpc(_clientId);
             StartTurnClientRpc();
         }
     }
@@ -133,25 +119,28 @@ public class TurnManager : NetworkBehaviour
     [ClientRpc]
     private void StartTurnClientRpc()
     {
-        Logger.Log("StartTurnClientRpc gameManager.characters.Count: " + GameManager.Instance.characters.Count);
-        Logger.Log($"my id: {NetworkManager.Singleton.LocalClientId}");
-        if (characterReferenceTurn != null && characterReferenceTurn.Value.TryGet(out NetworkObject _networkObject))
+        if (isInitialized.Value)
         {
-            Logger.Log($"Turn id: {_networkObject.OwnerClientId}");
+            endTurnButton.interactable = IsMyTurn;
+            onInitialization?.Invoke();
         }
-        Logger.Log("TurnManager StartTurnClientRpc IsMyTurn: " + IsMyTurn);
-        endTurnButton.interactable = IsMyTurn;
-        onInitialization?.Invoke();
+        else
+        {
+            characterReferenceTurn.OnValueChanged += (NetworkObjectReference _previousValue, NetworkObjectReference _newValue) =>
+            {
+                if (_newValue.TryGet(out NetworkObject _networkObject))
+                {
+                    endTurnButton.interactable = NetworkManager.Singleton.LocalClientId == _networkObject.OwnerClientId;
+                }
+                onInitialization?.Invoke();
+            };
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void NextTurnServerRpc()
     {
         turnTime.Value = timeTurnDuration;
-
-        Logger.Log("gameManager.characters.Count: " + gameManager.characters.Count);
-
-        // Next player turn
 
         int currentCharacterIndex = gameManager.characters.IndexOf(characterReferenceTurn.Value);
         int nextCharacterIndex = (currentCharacterIndex + 1) % gameManager.characters.Count;
@@ -173,6 +162,6 @@ public class TurnManager : NetworkBehaviour
     private void NextTurnClientRpc(ulong _clientId)
     {
         endTurnButton.interactable = NetworkManager.Singleton.LocalClientId == _clientId;
-        onEndTurn?.Invoke(_clientId);
+        onNextTurn?.Invoke(_clientId);
     }
 }
