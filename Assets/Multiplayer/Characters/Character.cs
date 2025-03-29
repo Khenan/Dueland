@@ -9,7 +9,7 @@ public class Character : NetworkBehaviour
     public NetworkVariable<Vector2Int> MatrixPosition => matrixPosition;
     public Color Color { get; private set; }
 
-    public CharacterData Data { get; private set; }
+    public CharacterData Data;
 
     public override void OnNetworkSpawn()
     {

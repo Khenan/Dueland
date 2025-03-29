@@ -2,14 +2,15 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
+[Serializable]
 public class CharacterData
 {
-    public int Life { get; private set; }
-    public int LifeMax { get; private set; }
+    public int Life;
+    public int LifeMax;
     public Action OnLifeChanged;
 
-    public int MovePoints { get; private set; } = 3;
-    public int MovePointsMax { get; private set; } = 3;
+    public int MovePoints = 3;
+    public int MovePointsMax = 3;
 
     public CharacterData(int _lifeMax, int _movePointsMax)
     {
@@ -22,9 +23,9 @@ public class CharacterData
         TurnManager.onNextTurn += ResetMovePoints;
     }
 
-    private void ResetMovePoints(ulong _clientId)
+    private void ResetMovePoints(ulong _previousClientId, ulong _currentClientId)
     {
-        if (_clientId == NetworkManager.Singleton.LocalClientId)
+        if (_previousClientId == NetworkManager.Singleton.LocalClientId)
         {
             MovePoints = MovePointsMax;
         }

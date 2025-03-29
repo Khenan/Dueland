@@ -27,6 +27,7 @@ public class Tile : MonoBehaviour
     public Tile Parent { get; set; }
     public int GCost = 0;
     public int HCost = 0;
+    public int PathCost = 0;
 
     void Awake()
     {
@@ -60,6 +61,7 @@ public class Tile : MonoBehaviour
         // Reset the tile's A* properties
         GCost = Cost;
         HCost = 0;
+        PathCost = Cost;
         Parent = null;
         tileSpriteRenderer.color = Color;
     }

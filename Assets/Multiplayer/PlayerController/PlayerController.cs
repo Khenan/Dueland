@@ -87,10 +87,12 @@ public class PlayerController : NetworkBehaviour
             MapManager.Instance.HidePathVisual();
             currentPath.Clear();
         }
+
         if (currentHoverTile != null && MapManager.Instance != null)
         {
-            MapManager.Instance.FindPath(ownerCharacter.MatrixPosition.Value, currentHoverTile.MatrixPosition, out Tile[] _path);
-            if (_path != null && _path.Length > 0 && _path.Length <= ownerCharacter.Data.MovePoints)
+            MapManager.Instance.FindPath(ownerCharacter.MatrixPosition.Value, currentHoverTile.MatrixPosition, out Tile[] _path, out int _pathCost);
+            Logger.Log("Path cost: " + _pathCost);
+            if (_path != null && _path.Length > 0 && _pathCost <= ownerCharacter.Data.MovePoints)
             {
                 MapManager.Instance.ShowPathVisual(_path);
                 currentPath.AddRange(_path);

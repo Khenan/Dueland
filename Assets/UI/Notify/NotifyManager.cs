@@ -21,9 +21,9 @@ public class NotifyManager : MonoBehaviour
         _notifyText.Initalize(_text, _time);
     }
 
-    public void SendNotifyToPlayer(ulong _playerId)
+    public void SendNotifyToPlayer(ulong _previousClientId, ulong _currentClientId)
     {
-        if (NetworkManager.Singleton.LocalClientId == _playerId)
+        if (NetworkManager.Singleton.LocalClientId == _currentClientId)
         {
             ShowNotifyText("It's your turn!", 1.5f);
         }
