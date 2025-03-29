@@ -248,11 +248,11 @@ public class MapManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    internal void RemoveTileDataServerRpc(int _x, int _y)
+    internal void RemoveTileDataServerRpc(int _x, int _y, ulong _networkObjectId)
     {
         for (int _i = 0; _i < tileDatas.Count; _i++)
         {
-            if (tileDatas[_i].MatrixPosition == new Vector2Int(_x, _y))
+            if (tileDatas[_i].MatrixPosition == new Vector2Int(_x, _y) && tileDatas[_i].NetworkObjectId == _networkObjectId)
             {
                 tileDatas.RemoveAt(_i);
                 break;
