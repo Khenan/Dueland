@@ -12,7 +12,7 @@ public class MapManager : NetworkBehaviour
 
     private NetworkVariable<FixedString4096Bytes> compressedMap = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> mapIsGenerated = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    private NetworkList<TileData> tileDatas = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkList<TileData> tileDatas = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private int mapSize = 10;
     private MapGenerator mapGenerator = new MapGenerator();
@@ -256,6 +256,18 @@ public class MapManager : NetworkBehaviour
             {
                 tileDatas.RemoveAt(_i);
                 break;
+            }
+        }
+    }
+
+    internal void GetAllTileDatasByMatrixPosition(Vector2Int _matrixPosition, out List<TileData> _tileDatas)
+    {
+        _tileDatas = new List<TileData>();
+        foreach (TileData _tileData in this.tileDatas)
+        {
+            if (_tileData.MatrixPosition == _matrixPosition)
+            {
+                _tileDatas.Add(_tileData);
             }
         }
     }
