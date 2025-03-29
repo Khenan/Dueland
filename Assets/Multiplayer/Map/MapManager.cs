@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
 
 public class MapManager : NetworkBehaviour
 {
@@ -14,9 +16,10 @@ public class MapManager : NetworkBehaviour
     private int mapSize = 10;
     private MapGenerator mapGenerator = new MapGenerator();
     private List<Tile> tiles = new List<Tile>();
-
     [SerializeField] private Sprite tileSprite;
     [SerializeField] private Tile tilePrefab;
+    public static Action onMapGenerated;
+    public static Action onMapInstantiated;
 
     void Awake()
     {
@@ -49,6 +52,7 @@ public class MapManager : NetworkBehaviour
         byte[] _map = mapGenerator.GenerateMap(mapSize);
         compressedMap.Value = ConvertTilesToString(_map);
         mapIsGenerated.Value = true;
+        onMapGenerated?.Invoke();
     }
 
     private void InstantiateMap(byte[] _map)
@@ -79,6 +83,7 @@ public class MapManager : NetworkBehaviour
                 tiles.Add(_tile);
             }
         }
+        onMapInstantiated?.Invoke();
     }
 
     private void ClearMap()
@@ -109,5 +114,12 @@ public class MapManager : NetworkBehaviour
     internal Tile GetTileByMatrixPosition(int _x, int _y)
     {
         return tiles[_x + _y * mapSize];
+    }
+
+    internal Tile GetRandomTile()
+    {
+        int _x = Random.Range(0, mapSize);
+        int _y = Random.Range(0, mapSize);
+        return GetTileByMatrixPosition(_x, _y);
     }
 }

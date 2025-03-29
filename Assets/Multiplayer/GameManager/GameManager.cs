@@ -62,6 +62,23 @@ public class GameManager : NetworkBehaviour
         AddClientIdServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 
+    public Character GetCharacterById(ulong _clientId)
+    {
+        foreach (NetworkObjectReference _characterReference in characters)
+        {
+            if (_characterReference.TryGet(out NetworkObject _networkObject))
+            {
+                if (_networkObject.OwnerClientId == _clientId)
+                {
+                    Debug.Log("GetCharacterById: " + _clientId);
+                    return _networkObject.GetComponent<Character>();
+                }
+            }
+        }
+        Debug.Log($"Any Character found for clientId: {_clientId}");
+        return null;
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void AddClientIdServerRpc(ulong _clientId)
     {
