@@ -30,11 +30,41 @@ public class PlayerController : NetworkBehaviour
     {
         if (IsOwner)
         {
+            UpdateHoverTile();
+
             if (TurnManager.Instance != null)
             {
                 if (TurnManager.Instance.IsMyTurn)
                 {
                     MyTurnUpdate();
+                }
+            }
+        }
+    }
+
+    private void UpdateHoverTile()
+    {
+        if (MapManager.Instance != null)
+        {
+            Tile _tile = MapManager.Instance.GetTileUnderMouse();
+            if (_tile != null)
+            {
+                if (_tile != currentHoverTile)
+                {
+                    if (currentHoverTile != null)
+                    {
+                        currentHoverTile.OnMouseExit();
+                    }
+                    currentHoverTile = _tile;
+                    currentHoverTile.OnMouseEnter();
+                }
+            }
+            else
+            {
+                if (currentHoverTile != null)
+                {
+                    currentHoverTile.OnMouseExit();
+                    currentHoverTile = null;
                 }
             }
         }

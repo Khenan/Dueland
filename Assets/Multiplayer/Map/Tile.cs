@@ -7,6 +7,9 @@ public class Tile : MonoBehaviour
 
     public Vector2Int MatrixPosition => matrixPosition;
 
+    public SpriteRenderer tileSpriteRenderer;
+    public Transform hoverTransform;
+
     // Neighbours
     public Tile Up { get; private set; }
     public Tile Down { get; private set; }
@@ -24,6 +27,11 @@ public class Tile : MonoBehaviour
     public Tile Parent { get; set; }
     public int GCost = 0;
     public int HCost = 0;
+
+    void Awake()
+    {
+        hoverTransform.gameObject.SetActive(false);
+    }
 
     public void Init(Vector2Int _matrixPosition)
     {
@@ -44,13 +52,23 @@ public class Tile : MonoBehaviour
         GCost = Cost;
         HCost = 0;
         Parent = null;
-        GetComponent<SpriteRenderer>().color = Color;
+        tileSpriteRenderer.color = Color;
     }
 
     public void Test()
     {
         Cost = 100;
         Color = Color.gray;
-        GetComponent<SpriteRenderer>().color = Color;
+        tileSpriteRenderer.color = Color;
+    }
+
+    internal void OnMouseExit()
+    {
+        hoverTransform.gameObject.SetActive(false);
+    }
+
+    internal void OnMouseEnter()
+    {
+        hoverTransform.gameObject.SetActive(true);
     }
 }
