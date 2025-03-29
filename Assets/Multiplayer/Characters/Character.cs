@@ -45,6 +45,7 @@ public class Character : NetworkBehaviour
     {
         Tile _tile = MapManager.Instance.GetTileByMatrixPosition(_x, _y);
         transform.position = _tile.transform.position;
+        MapManager.Instance.SetTileDataServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y, GetComponent<NetworkObject>().NetworkObjectId, false);
     }
 
     public void TeleporteToTile(Tile _tile)
@@ -52,13 +53,19 @@ public class Character : NetworkBehaviour
         if (IsOwner)
         {
             Logger.Log("TeleporteToTile called by owner.");
-            matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
-            MoveToTileServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
+            MoveToTileSynchronized(_tile);
         }
         else
         {
             Logger.Log("TeleporteToTile called by non-owner.");
         }
+    }
+
+    private void MoveToTileSynchronized(Tile _tile)
+    {
+        MapManager.Instance.RemoveTileDataServerRpc(matrixPosition.Value.x, matrixPosition.Value.y);
+        matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
+        MoveToTileServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
     }
 
     private bool ConsumeMovePoints(int _distance)
@@ -86,8 +93,7 @@ public class Character : NetworkBehaviour
             if (ConsumeMovePoints(_pathCost))
             {
                 _success = true;
-                matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
-                MoveToTileServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
+                MoveToTileSynchronized(_tile);
             }
         }
         else

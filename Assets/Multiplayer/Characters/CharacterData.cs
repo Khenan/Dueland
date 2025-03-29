@@ -29,15 +29,15 @@ public struct CharacterData : INetworkSerializable
     }
 
     // Obligatoire pour `INetworkSerializable`
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    public void NetworkSerialize<T>(BufferSerializer<T> _serializer) where T : IReaderWriter
     {
-        serializer.SerializeValue(ref Name);
-        serializer.SerializeValue(ref Description);
-        serializer.SerializeValue(ref Life);
-        serializer.SerializeValue(ref LifeMax);
-        serializer.SerializeValue(ref MovePoints);
-        serializer.SerializeValue(ref MovePointsMax);
-        serializer.SerializeValue(ref Color);
-        serializer.SerializeValue(ref SpriteId);
+        _serializer.SerializeValue(ref Name);
+        _serializer.SerializeValue(ref Description);
+        _serializer.SerializeValue(ref Life);
+        _serializer.SerializeValue(ref LifeMax);
+        _serializer.SerializeValue(ref MovePoints);
+        _serializer.SerializeValue(ref MovePointsMax);
+        _serializer.SerializeValue(ref Color);
+        _serializer.SerializeValue(ref SpriteId);
     }
 }
