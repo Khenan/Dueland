@@ -12,6 +12,7 @@ public class MapManager : NetworkBehaviour
 
     private NetworkVariable<FixedString4096Bytes> compressedMap = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> mapIsGenerated = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private NetworkList<TileData> tileDatas = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private int mapSize = 10;
     private MapGenerator mapGenerator = new MapGenerator();
@@ -173,16 +174,16 @@ public class MapManager : NetworkBehaviour
 
     internal void FindPath(Vector2Int _startPosition, Vector2Int _endPosition, out Tile[] _path, out int _pathCost)
     {
-        if(_startPosition == _endPosition)
+        if (_startPosition == _endPosition)
         {
             _path = null;
             _pathCost = 0;
             return;
         }
-        
+
         Tile _startTile = GetTileByMatrixPosition(_startPosition.x, _startPosition.y);
         Tile _endTile = GetTileByMatrixPosition(_endPosition.x, _endPosition.y);
-        List<Tile> _tilePath = aStar.FindPath(_startTile, _endTile, out _pathCost);
+        List<Tile> _tilePath = aStar.FindPath(_startTile, _endTile, tileDatas, out _pathCost);
         if (_tilePath != null)
         {
             _path = _tilePath.ToArray();
@@ -230,6 +231,31 @@ public class MapManager : NetworkBehaviour
             foreach (var _pathVisual in tilePathVisualPool)
             {
                 _pathVisual.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    internal void SetTileDataServerRpc(int _x, int _y, ulong _networkObjectId, bool _isWalkable)
+    {
+        TileData _tileData = new TileData()
+        {
+            MatrixPosition = new Vector2Int(_x, _y),
+            NetworkObjectId = _networkObjectId,
+            IsWalkable = _isWalkable
+        };
+        tileDatas.Add(_tileData);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    internal void RemoveTileDataServerRpc(int _x, int _y, ulong _networkObjectId)
+    {
+        for (int _i = 0; _i < tileDatas.Count; _i++)
+        {
+            if (tileDatas[_i].MatrixPosition == new Vector2Int(_x, _y) && tileDatas[_i].NetworkObjectId == _networkObjectId)
+            {
+                tileDatas.RemoveAt(_i);
+                break;
             }
         }
     }
