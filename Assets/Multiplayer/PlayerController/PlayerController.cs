@@ -63,6 +63,9 @@ public class PlayerController : NetworkBehaviour
                     }
                     currentHoverTile = _tile;
                     currentHoverTile.OnMouseEnter();
+
+                    // Check if the tile has TileData
+                    TileDatasCheck(currentHoverTile.MatrixPosition);
                 }
             }
             else
@@ -73,6 +76,30 @@ public class PlayerController : NetworkBehaviour
                     currentHoverTile = null;
                 }
             }
+        }
+    }
+
+    private void TileDatasCheck(Vector2Int _matrixPosition)
+    {
+        if (MapManager.Instance.tileDatas != null)
+        {
+            MapManager.Instance.GetAllTileDatasByMatrixPosition(_matrixPosition, out List<TileData> _tileDatas);
+
+            // DO CODE
+
+            // Log if the tile has a tileData with the same NetworkObjectId as the ownerCharacter
+            if (_tileDatas != null && _tileDatas.Count > 0)
+            {
+                foreach (TileData _tileData in _tileDatas)
+                {
+                    if (_tileData.NetworkObjectId == ownerCharacter.NetworkObjectId)
+                    {
+                        Logger.Log("Tile has a tileData with the same NetworkObjectId as the ownerCharacter.");
+                        return;
+                    }
+                }
+            }
+            else Logger.Log("Tile does not have any tileData.");
         }
     }
 
@@ -119,6 +146,7 @@ public class PlayerController : NetworkBehaviour
                     if (canMoveOnCurrentPath)
                     {
                         MoveCharacter(_tile, currentPathCost);
+                        currentHoverTile = null;
                     }
                 }
                 else Logger.LogWarning("Hit object does not have a Tile component.");
