@@ -16,15 +16,16 @@ public class MapManager : NetworkBehaviour
     private int mapSize = 10;
     private MapGenerator mapGenerator = new MapGenerator();
     public List<Tile> Tiles { get; private set; } = new List<Tile>();
-    private AStar aStar = new AStar();
+    public AStar aStar = new AStar();
 
     [SerializeField] private Sprite tileSprite;
     [SerializeField] private Tile tilePrefab;
     public static Action onMapGenerated;
     public static Action onMapInstantiated;
 
-    private Tile startTile;
-    private Tile endTile;
+    // Path
+    [SerializeField] private Transform tilePathVisualPrefab;
+    private List<Transform> tilePathVisualPool = new List<Transform>();
 
     void Awake()
     {
@@ -33,32 +34,6 @@ public class MapManager : NetworkBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(0))
-        {
-            Logger.Log("Shift + Left Mouse Button pressed, Get start Tile.");
-            startTile = GetTileUnderMouse();
-        }
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(1))
-        {
-            Logger.Log("Shift + Right Mouse Button pressed, Get end Tile.");
-            endTile = GetTileUnderMouse();
-        }
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(2))
-        {
-            Logger.Log("Shift + Middle Mouse Button pressed, Calculate path.");
-            if (startTile != null && endTile != null)
-            {
-                List<Tile> _tilePath = aStar.FindPath(startTile, endTile);
-                Logger.Log("Path found: " + _tilePath.Count + " tiles.");
-                for (int i = 0; i < _tilePath.Count; i++)
-                {
-                    float t = (float)i / (_tilePath.Count - 1); // Normalized value between 0 and 1
-                    Color gradientColor = Color.Lerp(Color.red, Color.blue, t); // Interpolate between red and blue
-                    _tilePath[i].GetComponent<SpriteRenderer>().color = gradientColor;
-                }
-            }
-        }
-
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetMouseButtonDown(0))
         {
             GetTileUnderMouse().Test();
@@ -194,5 +169,68 @@ public class MapManager : NetworkBehaviour
         int _x = Random.Range(0, mapSize);
         int _y = Random.Range(0, mapSize);
         return GetTileByMatrixPosition(_x, _y);
+    }
+
+    internal void FindPath(Vector2Int _startPosition, Vector2Int _endPosition, out Tile[] _path, out int _pathCost)
+    {
+        if(_startPosition == _endPosition)
+        {
+            _path = null;
+            _pathCost = 0;
+            return;
+        }
+        
+        Tile _startTile = GetTileByMatrixPosition(_startPosition.x, _startPosition.y);
+        Tile _endTile = GetTileByMatrixPosition(_endPosition.x, _endPosition.y);
+        List<Tile> _tilePath = aStar.FindPath(_startTile, _endTile, out _pathCost);
+        if (_tilePath != null)
+        {
+            _path = _tilePath.ToArray();
+        }
+        else
+        {
+            _path = null;
+        }
+    }
+
+    internal void ShowPathVisual(Tile[] _path)
+    {
+        HidePathVisual();
+
+        CreateVisualPathIfNeeded(_path);
+
+        // Show and set position for each path visual
+        for (int i = 0; i < _path.Length; i++)
+        {
+            Transform _pathVisual = tilePathVisualPool[i];
+            _pathVisual.gameObject.SetActive(true);
+            _pathVisual.position = new Vector3(_path[i].MatrixPosition.x, _path[i].MatrixPosition.y, 0);
+        }
+    }
+
+    private void CreateVisualPathIfNeeded(Tile[] _path)
+    {
+        if (tilePathVisualPrefab != null)
+        {
+            if (tilePathVisualPool.Count < _path.Length)
+            {
+                for (int i = 0; i < _path.Length - tilePathVisualPool.Count; i++)
+                {
+                    Transform _pathVisual = Instantiate(tilePathVisualPrefab);
+                    tilePathVisualPool.Add(_pathVisual);
+                }
+            }
+        }
+    }
+
+    internal void HidePathVisual()
+    {
+        if (tilePathVisualPool.Count > 0)
+        {
+            foreach (var _pathVisual in tilePathVisualPool)
+            {
+                _pathVisual.gameObject.SetActive(false);
+            }
+        }
     }
 }

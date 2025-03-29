@@ -1,31 +1,43 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
-public class CharacterData
+[Serializable]
+public struct CharacterData : INetworkSerializable
 {
-    public int Life { get; private set; }
-    public int MaxLife { get; private set; }
-    public Action OnLifeChanged;
+    public string Name;
+    public string Description;
+    public int Life;
+    public int LifeMax;
+    public int MovePoints;
+    public int MovePointsMax;
+    public Color Color;
+    public int SpriteId;
 
-    public CharacterData(int _maxLife)
+    public void TakeDamage(int damage)
     {
-        Life = _maxLife;
-        MaxLife = _maxLife;
-    }
-
-    public void TakeDamage(int _damage)
-    {
-        Life -= _damage;
-        if(Life < 0)
+        Life -= damage;
+        if (Life < 0)
         {
             Life = 0;
-            Dead();
         }
-        OnLifeChanged?.Invoke();
     }
 
-    private void Dead()
+    public void ResetMovePoints()
     {
-        Debug.Log("Character is dead!");
+        MovePoints = MovePointsMax;
+    }
+
+    // Obligatoire pour `INetworkSerializable`
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref Name);
+        serializer.SerializeValue(ref Description);
+        serializer.SerializeValue(ref Life);
+        serializer.SerializeValue(ref LifeMax);
+        serializer.SerializeValue(ref MovePoints);
+        serializer.SerializeValue(ref MovePointsMax);
+        serializer.SerializeValue(ref Color);
+        serializer.SerializeValue(ref SpriteId);
     }
 }

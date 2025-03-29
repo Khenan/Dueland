@@ -1,0 +1,168 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CharacterDataBaseSO_base
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 3900b048c47fb32469fcb1e31b26e235, type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.size
+    value: 3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].Name
+    value: Asha L'Assassin
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].Description
+    value: Assassin
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].Life
+    value: 80
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].LifeMax
+    value: 80
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].MovePoints
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].MovePointsMax
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].Color.r
+    value: 0.2609087
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].Color.g
+    value: 0.735849
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].Color.b
+    value: 0.25685287
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].Color.a
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[0].SpriteId
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].Name
+    value: Brok'tar Le Berzerker
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].Description
+    value: Berzerker
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].Life
+    value: 120
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].LifeMax
+    value: 120
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].MovePoints
+    value: 3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].MovePointsMax
+    value: 3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].Color.r
+    value: 0.7372549
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].Color.g
+    value: 0.35107878
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].Color.b
+    value: 0.25490195
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].Color.a
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[1].SpriteId
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].Name
+    value: Caelion Le Cryomancien
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].Description
+    value: Cryomancien
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].Life
+    value: 80
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].LifeMax
+    value: 80
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].MovePoints
+    value: 3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].MovePointsMax
+    value: 3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].Color.r
+    value: 0.17731993
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].Color.g
+    value: 0.6459922
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].Color.b
+    value: 0.8274932
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].Color.a
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: CharacterDataList.Array.data[2].SpriteId
+    value: 0
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
+  m_CoupledType:
+    m_NativeTypeID: 0
+    m_ManagedTypePPtr: {fileID: 0}
+    m_ManagedTypeFallback: 
+  m_CoupledProperties: []
