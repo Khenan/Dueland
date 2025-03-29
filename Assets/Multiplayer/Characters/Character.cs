@@ -45,7 +45,7 @@ public class Character : NetworkBehaviour
     {
         Tile _tile = MapManager.Instance.GetTileByMatrixPosition(_x, _y);
         transform.position = _tile.transform.position;
-        MapManager.Instance.SetTileDataServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y, GetComponent<NetworkObject>().NetworkObjectId, false);
+        MapManager.Instance.SetTileDataServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y, NetworkObjectId, false);
     }
 
     public void TeleporteToTile(Tile _tile)
@@ -63,7 +63,7 @@ public class Character : NetworkBehaviour
 
     private void MoveToTileSynchronized(Tile _tile)
     {
-        MapManager.Instance.RemoveTileDataServerRpc(matrixPosition.Value.x, matrixPosition.Value.y);
+        MapManager.Instance.RemoveTileDataServerRpc(matrixPosition.Value.x, matrixPosition.Value.y, NetworkObjectId);
         matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
         MoveToTileServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
     }
