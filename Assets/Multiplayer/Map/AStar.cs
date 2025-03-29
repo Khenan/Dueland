@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using Unity.Services.Multiplay.Authoring.Core.MultiplayApi;
+using Unity.Netcode;
 
 [Serializable]
 public class AStar
 {
-    public List<Tile> FindPath(Tile _start, Tile _end, out int _pathCost)
+    public List<Tile> FindPath(Tile _start, Tile _end, NetworkList<TileData> _tileDatas, out int _pathCost)
     {
         List<Tile> _openList = new List<Tile>();
         HashSet<Tile> _closedList = new HashSet<Tile>();
@@ -38,6 +37,23 @@ public class AStar
             foreach (var _neighbour in GetNeighbours(_currentTile))
             {
                 if (_closedList.Contains(_neighbour) || !IsWalkable(_neighbour))
+                {
+                    continue;
+                }
+
+                // Check if tile with the same MatrixPosition is contained into the tileDatas list
+                bool _isTileDataContained = false;
+                TileData _tileDataFound = new TileData();
+                foreach (TileData _tileData in _tileDatas)
+                {
+                    if (_tileData.MatrixPosition == _neighbour.MatrixPosition)
+                    {
+                        _tileDataFound = _tileData;
+                        _isTileDataContained = true;
+                        break;
+                    }
+                }
+                if (_isTileDataContained && !_tileDataFound.IsWalkable)
                 {
                     continue;
                 }
