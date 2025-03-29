@@ -14,7 +14,7 @@ public class Character : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         Logger.Log("Network Character Spawned and playerId is: " + OwnerClientId);
-        Data = new CharacterData(10);
+        Data = new CharacterData(10, 3);
 
         if (IsOwner)
         {
@@ -34,18 +34,40 @@ public class Character : NetworkBehaviour
         transform.position = _tile.transform.position;
     }
 
-    public void MoveToTile(Tile _tile)
+    public void TeleporteToTile(Tile _tile)
     {
         if (IsOwner)
         {
+            Logger.Log("TeleporteToTile called by owner.");
             matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
-            Logger.Log("MoveToTile called by owner.");
             MoveToTileServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
+        }
+        else
+        {
+            Logger.Log("TeleporteToTile called by non-owner.");
+        }
+    }
+
+    public bool MoveToTile(Tile _tile)
+    {
+        bool _success = false;
+        if (IsOwner)
+        {
+            Logger.Log("MoveToTile called by owner.");
+            // Get distance to tile
+            int _heuristicDistance = Mathf.Abs(_tile.MatrixPosition.x - matrixPosition.Value.x) + Mathf.Abs(_tile.MatrixPosition.y - matrixPosition.Value.y);
+            if (Data.Move(_heuristicDistance))
+            {
+                _success = true;
+                matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
+                MoveToTileServerRpc(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
+            }
         }
         else
         {
             Logger.Log("MoveToTile called by non-owner.");
         }
+        return _success;
     }
 
     internal void ColorizeCharacter(Color _color)

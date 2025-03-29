@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -20,7 +21,7 @@ public class PlayerController : NetworkBehaviour
 
     private void OnMapInstantiated()
     {
-        ownerCharacter.MoveToTile(MapManager.Instance.GetRandomTile());
+        ownerCharacter.TeleporteToTile(MapManager.Instance.GetRandomTile());
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -39,12 +40,10 @@ public class PlayerController : NetworkBehaviour
         {
             UpdateHoverTile();
 
-            if (TurnManager.Instance != null)
+            if (TurnManager.Instance != null && TurnManager.Instance.IsMyTurn)
             {
-                if (TurnManager.Instance.IsMyTurn)
-                {
-                    MyTurnUpdate();
-                }
+                UpdateTurnHoverTile();
+                MyTurnUpdate();
             }
         }
     }
@@ -77,6 +76,29 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private List<Tile> currentPath = new List<Tile>();
+    private bool canMoveOnCurrentPath = false;
+
+    private void UpdateTurnHoverTile()
+    {
+        canMoveOnCurrentPath = false;
+        if (currentPath.Count > 0)
+        {
+            MapManager.Instance.HidePathVisual();
+            currentPath.Clear();
+        }
+        if (currentHoverTile != null && MapManager.Instance != null)
+        {
+            MapManager.Instance.FindPath(ownerCharacter.MatrixPosition.Value, currentHoverTile.MatrixPosition, out Tile[] _path);
+            if (_path != null && _path.Length > 0 && _path.Length <= ownerCharacter.Data.MovePoints)
+            {
+                MapManager.Instance.ShowPathVisual(_path);
+                currentPath.AddRange(_path);
+                canMoveOnCurrentPath = true;
+            }
+        }
+    }
+
     private void MyTurnUpdate()
     {
         if (Input.GetMouseButtonDown(0))
@@ -90,8 +112,7 @@ public class PlayerController : NetworkBehaviour
                 Logger.Log("2D Collider hit: " + _hit2D.collider.name);
                 if (_hit2D.collider.TryGetComponent(out Tile _tile))
                 {
-                    Vector2Int _currentPosition = ownerCharacter.MatrixPosition.Value;
-                    if (MapManager.Instance.GetTileByMatrixPosition(_currentPosition.x, _currentPosition.y).IsAdjacentTo(_tile))
+                    if (canMoveOnCurrentPath)
                     {
                         MoveCharacter(_tile);
                     }
