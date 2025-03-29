@@ -9,22 +9,35 @@ public class Character : NetworkBehaviour
     public NetworkVariable<Vector2Int> MatrixPosition => matrixPosition;
     public Color Color { get; private set; }
 
-    public CharacterData Data;
+    public SpriteRenderer spriteRenderer;
+
+    public NetworkVariable<CharacterData> Data = new NetworkVariable<CharacterData>(new CharacterData(), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     public override void OnNetworkSpawn()
     {
         Logger.Log("Network Character Spawned and playerId is: " + OwnerClientId);
-        Data = new CharacterData(10, 3);
 
         if (IsOwner)
         {
             GameManager.Instance.AddCharacterServerRpc(GetComponent<NetworkObject>());
+            TurnManager.onNextTurn += OnNextTurn;
+            Data.Value = MultiplayerManager.Instance.CharacterDataBase.GetCharacterDataById(MultiplayerManager.Instance.SelectedCharacterId);
         }
 
-        if ((int)OwnerClientId < GameManager.Instance.colors.Length)
-            ColorizeCharacter(GameManager.Instance.colors[OwnerClientId]);
-        else
-            Logger.LogError("OwnerClientId is out of bounds for colors array: " + OwnerClientId);
+        ColorizeCharacter(Data.Value.Color);
+    }
+
+    private void OnNextTurn(ulong _previousClientId, ulong _currentClientId)
+    {
+        Logger.Log("Character -> OnNextTurn called. Previous ClientId: " + _previousClientId + ", Current ClientId: " + _currentClientId);
+        if (IsOwner && OwnerClientId == _currentClientId)
+        {
+            Logger.Log("MovePoints: " + Data.Value.MovePoints);
+            CharacterData _data = Data.Value;
+            _data.MovePoints = _data.MovePointsMax;
+            Data.Value = _data;
+            Logger.Log("MovePoints: " + Data.Value.MovePoints);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -48,15 +61,29 @@ public class Character : NetworkBehaviour
         }
     }
 
-    public bool MoveToTile(Tile _tile)
+    private bool ConsumeMovePoints(int _distance)
+    {
+        if (Data.Value.MovePoints >= _distance)
+        {
+            CharacterData _data = Data.Value;
+            _data.MovePoints -= _distance;
+            Data.Value = _data;
+            return true;
+        }
+        else
+        {
+            Logger.Log("Not enough move points to move.");
+            return false;
+        }
+    }
+
+    public bool MoveToTile(Tile _tile, int _pathCost)
     {
         bool _success = false;
         if (IsOwner)
         {
             Logger.Log("MoveToTile called by owner.");
-            // Get distance to tile
-            int _heuristicDistance = Mathf.Abs(_tile.MatrixPosition.x - matrixPosition.Value.x) + Mathf.Abs(_tile.MatrixPosition.y - matrixPosition.Value.y);
-            if (Data.Move(_heuristicDistance))
+            if (ConsumeMovePoints(_pathCost))
             {
                 _success = true;
                 matrixPosition.Value = new Vector2Int(_tile.MatrixPosition.x, _tile.MatrixPosition.y);
@@ -73,10 +100,9 @@ public class Character : NetworkBehaviour
     internal void ColorizeCharacter(Color _color)
     {
         Color = _color;
-        SpriteRenderer _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        if (_spriteRenderer != null)
+        if (spriteRenderer != null)
         {
-            _spriteRenderer.color = _color;
+            spriteRenderer.color = _color;
         }
         else
         {

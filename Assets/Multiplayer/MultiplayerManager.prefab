@@ -118,4 +118,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49a57c59f0ca8f84798cc82a1104ffc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SelectedCharacterData:
+    Name: 
+    Description: 
+    Life: 0
+    LifeMax: 0
+    MovePoints: 0
+    MovePointsMax: 0
+    Color: {r: 0, g: 0, b: 0, a: 0}
+    SpriteId: 0
   lobbyUI: {fileID: 0}
+  CharacterDataBase: {fileID: 11400000, guid: 134cbca0dd1c5a34fa13e0fdc45dcf27, type: 2}
+  SpriteDataBase: {fileID: 11400000, guid: 3eb7df33470962d478bab454a9427fbc, type: 2}

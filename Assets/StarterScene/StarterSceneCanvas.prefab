@@ -213,9 +213,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8451011526077022546}
     m_Modifications:
+    - target: {fileID: 1807108037808459620, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
+      propertyPath: m_Color.b
+      value: 0.22192867
+      objectReference: {fileID: 0}
+    - target: {fileID: 1807108037808459620, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
+      propertyPath: m_Color.g
+      value: 0.8251993
+      objectReference: {fileID: 0}
+    - target: {fileID: 1807108037808459620, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
+      propertyPath: m_Color.r
+      value: 0.8274932
+      objectReference: {fileID: 0}
     - target: {fileID: 2285158620263827066, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
       propertyPath: m_Name
       value: PlayerSelector
+      objectReference: {fileID: 0}
+    - target: {fileID: 5127256622778533869, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
+      propertyPath: m_Options.m_Options.Array.data[0].m_Color.b
+      value: 0.22192867
+      objectReference: {fileID: 0}
+    - target: {fileID: 5127256622778533869, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
+      propertyPath: m_Options.m_Options.Array.data[0].m_Color.g
+      value: 0.8251993
+      objectReference: {fileID: 0}
+    - target: {fileID: 5127256622778533869, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
+      propertyPath: m_Options.m_Options.Array.data[0].m_Color.r
+      value: 0.8274932
       objectReference: {fileID: 0}
     - target: {fileID: 8084579217724723309, guid: 554ab45f7994d1b4fab600df0393d4b0, type: 3}
       propertyPath: m_Pivot.x

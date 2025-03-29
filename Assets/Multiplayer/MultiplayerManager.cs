@@ -78,6 +78,11 @@ public class MultiplayerManager : MonoBehaviour
 
     public bool Initialized { get; private set; }
 
+    public CharacterDataBaseSO CharacterDataBase;
+    public SpriteDataBaseSO SpriteDataBase;
+
+    public int SelectedCharacterId = 0;
+
     void Awake()
     {
         if (instance == null)

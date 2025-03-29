@@ -3,57 +3,41 @@ using Unity.Netcode;
 using UnityEngine;
 
 [Serializable]
-public class CharacterData
+public struct CharacterData : INetworkSerializable
 {
+    public string Name;
+    public string Description;
     public int Life;
     public int LifeMax;
-    public Action OnLifeChanged;
+    public int MovePoints;
+    public int MovePointsMax;
+    public Color Color;
+    public int SpriteId;
 
-    public int MovePoints = 3;
-    public int MovePointsMax = 3;
-
-    public CharacterData(int _lifeMax, int _movePointsMax)
+    public void TakeDamage(int damage)
     {
-        Life = _lifeMax;
-        LifeMax = _lifeMax;
-
-        MovePoints = _movePointsMax;
-        MovePointsMax = _movePointsMax;
-
-        TurnManager.onNextTurn += ResetMovePoints;
-    }
-
-    private void ResetMovePoints(ulong _previousClientId, ulong _currentClientId)
-    {
-        if (_previousClientId == NetworkManager.Singleton.LocalClientId)
-        {
-            MovePoints = MovePointsMax;
-        }
-    }
-
-    public void TakeDamage(int _damage)
-    {
-        Life -= _damage;
+        Life -= damage;
         if (Life < 0)
         {
             Life = 0;
-            Dead();
         }
-        OnLifeChanged?.Invoke();
     }
 
-    private void Dead()
+    public void ResetMovePoints()
     {
-        Debug.Log("Character is dead!");
+        MovePoints = MovePointsMax;
     }
 
-    public bool Move(int _movePoints)
+    // Obligatoire pour `INetworkSerializable`
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        if (MovePoints >= _movePoints)
-        {
-            MovePoints -= _movePoints;
-            return true;
-        }
-        return false;
+        serializer.SerializeValue(ref Name);
+        serializer.SerializeValue(ref Description);
+        serializer.SerializeValue(ref Life);
+        serializer.SerializeValue(ref LifeMax);
+        serializer.SerializeValue(ref MovePoints);
+        serializer.SerializeValue(ref MovePointsMax);
+        serializer.SerializeValue(ref Color);
+        serializer.SerializeValue(ref SpriteId);
     }
 }
