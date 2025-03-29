@@ -16,7 +16,7 @@ public class MapManager : NetworkBehaviour
     private int mapSize = 10;
     private MapGenerator mapGenerator = new MapGenerator();
     public List<Tile> Tiles { get; private set; } = new List<Tile>();
-    private AStar aStar = new AStar();
+    public AStar aStar = new AStar();
 
     [SerializeField] private Sprite tileSprite;
     [SerializeField] private Tile tilePrefab;
@@ -171,17 +171,18 @@ public class MapManager : NetworkBehaviour
         return GetTileByMatrixPosition(_x, _y);
     }
 
-    internal void FindPath(Vector2Int _startPosition, Vector2Int _endPosition, out Tile[] _path)
+    internal void FindPath(Vector2Int _startPosition, Vector2Int _endPosition, out Tile[] _path, out int _pathCost)
     {
         if(_startPosition == _endPosition)
         {
             _path = null;
+            _pathCost = 0;
             return;
         }
         
         Tile _startTile = GetTileByMatrixPosition(_startPosition.x, _startPosition.y);
         Tile _endTile = GetTileByMatrixPosition(_endPosition.x, _endPosition.y);
-        List<Tile> _tilePath = aStar.FindPath(_startTile, _endTile);
+        List<Tile> _tilePath = aStar.FindPath(_startTile, _endTile, out _pathCost);
         if (_tilePath != null)
         {
             _path = _tilePath.ToArray();

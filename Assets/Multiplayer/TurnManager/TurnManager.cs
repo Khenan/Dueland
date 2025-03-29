@@ -27,7 +27,7 @@ public class TurnManager : NetworkBehaviour
             return _isMyTurn;
         }
     }
-    public static Action<ulong> onNextTurn;
+    public static Action<ulong, ulong> onNextTurn;
     public static TurnManager Instance { get; private set; }
     public static Action onInitialization;
 
@@ -111,7 +111,8 @@ public class TurnManager : NetworkBehaviour
 
             // Get the client ID of the character that starts the turn
             ulong _clientId = characterReferenceTurn.Value.TryGet(out NetworkObject _networkObject) ? _networkObject.OwnerClientId : 0;
-            NextTurnClientRpc(_clientId);
+
+            NextTurnClientRpc(_clientId, _clientId);
             StartTurnClientRpc();
         }
     }
@@ -142,11 +143,14 @@ public class TurnManager : NetworkBehaviour
     {
         turnTime.Value = timeTurnDuration;
 
+        ulong _previousClientId = characterReferenceTurn.Value.TryGet(out NetworkObject _previousNetworkObject) ? _previousNetworkObject.OwnerClientId : 0;
+
         int currentCharacterIndex = gameManager.characters.IndexOf(characterReferenceTurn.Value);
         int nextCharacterIndex = (currentCharacterIndex + 1) % gameManager.characters.Count;
         characterReferenceTurn.Value = gameManager.characters[nextCharacterIndex];
-        ulong _clientId = characterReferenceTurn.Value.TryGet(out NetworkObject _networkObject) ? _networkObject.OwnerClientId : 0;
-        NextTurnClientRpc(_clientId);
+
+        ulong _currentClientId = characterReferenceTurn.Value.TryGet(out NetworkObject _currentNetworkObject) ? _currentNetworkObject.OwnerClientId : 0;
+        NextTurnClientRpc(_previousClientId, _currentClientId);
     }
 
     public void EndTurn()
@@ -159,9 +163,9 @@ public class TurnManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void NextTurnClientRpc(ulong _clientId)
+    private void NextTurnClientRpc(ulong _previousClientId, ulong _currentClientId)
     {
-        endTurnButton.interactable = NetworkManager.Singleton.LocalClientId == _clientId;
-        onNextTurn?.Invoke(_clientId);
+        endTurnButton.interactable = NetworkManager.Singleton.LocalClientId == _currentClientId;
+        onNextTurn?.Invoke(_previousClientId, _currentClientId);
     }
 }

@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using Unity.Services.Multiplay.Authoring.Core.MultiplayApi;
 
+[Serializable]
 public class AStar
 {
-    public List<Tile> FindPath(Tile _start, Tile _end)
+    public List<Tile> FindPath(Tile _start, Tile _end, out int _pathCost)
     {
         List<Tile> _openList = new List<Tile>();
         HashSet<Tile> _closedList = new HashSet<Tile>();
@@ -19,7 +22,7 @@ public class AStar
 
         while (_openList.Count > 0)
         {
-            Tile _currentTile = GetLowestFCostTile(_openList);
+            Tile _currentTile = GetLowestFCostTileOrEndTile(_openList, _end);
             _openList.Remove(_currentTile);
             _closedList.Add(_currentTile);
 
@@ -42,6 +45,7 @@ public class AStar
                 int _newCostToNeighbour = GetGCost(_currentTile) + GetDistance(_currentTile, _neighbour);
                 if (_newCostToNeighbour < GetGCost(_neighbour) || !_openList.Contains(_neighbour))
                 {
+                    SetPathCost(_neighbour, _currentTile);
                     SetGCost(_neighbour, _newCostToNeighbour);
                     SetHCost(_neighbour, GetDistance(_neighbour, _end));
                     SetParent(_neighbour, _currentTile);
@@ -50,25 +54,36 @@ public class AStar
                     {
                         _openList.Add(_neighbour);
                     }
+                    else
+                    {
+                        // If the neighbour is already in the open list, update its costs
+                        int _existingCost = GetGCost(_neighbour);
+                        if (_newCostToNeighbour < _existingCost)
+                        {
+                            SetGCost(_neighbour, _newCostToNeighbour);
+                            SetHCost(_neighbour, GetDistance(_neighbour, _end));
+                            SetParent(_neighbour, _currentTile);
+                        }
+                    }
                 }
             }
         }
 
         // Once all paths are collected, find the shortest one
-        List<Tile> shortestPath = null;
-        int shortestPathCost = int.MaxValue;
+        List<Tile> _shortestPath = null;
+        int _shortestPathCost = int.MaxValue;
 
         foreach (var path in _allPaths)
         {
-            int totalCost = GetFCost(path[path.Count - 1]); // Get cost of last tile in the path (the destination)
-            if (totalCost < shortestPathCost)
+            int totalCost = GetPathCost(path[path.Count - 1]) - GetGCost(_start); // Get cost of last tile in the path (the destination)
+            if (totalCost < _shortestPathCost)
             {
-                shortestPathCost = totalCost;
-                shortestPath = path;
+                _shortestPathCost = totalCost;
+                _shortestPath = path;
             }
         }
-
-        return shortestPath;
+        _pathCost = _shortestPathCost; // Set the path cost to the shortest path cost
+        return _shortestPath;
     }
 
     private void SetParent(Tile _neighbour, Tile _tile)
@@ -116,11 +131,15 @@ public class AStar
         return _tile.Parent;
     }
 
-    private Tile GetLowestFCostTile(List<Tile> _openList)
+    private Tile GetLowestFCostTileOrEndTile(List<Tile> _openList, Tile _endTile)
     {
         Tile _lowestFCostTile = _openList[0];
-        foreach (var _tile in _openList)
+        foreach (Tile _tile in _openList)
         {
+            if(_tile == _endTile)
+            {
+                return _tile; // Return the end tile if found in the open list
+            }
             if (GetFCost(_tile) < GetFCost(_lowestFCostTile))
             {
                 _lowestFCostTile = _tile;
@@ -131,7 +150,7 @@ public class AStar
 
     private int GetFCost(Tile _tile)
     {
-        return GetGCost(_tile) + GetHCost(_tile);
+        return GetGCost(_tile) + GetHCost(_tile) + GetPathCost(_tile); // F cost is G cost + H cost + Path cost
     }
 
     private int GetGCost(Tile _tile)
@@ -144,6 +163,11 @@ public class AStar
         return _tile.HCost;
     }
 
+    private int GetPathCost(Tile _tile)
+    {
+        return _tile.PathCost;
+    }
+
     private void SetGCost(Tile _tile, int _cost)
     {
         _tile.GCost = _cost + _tile.Cost; // Add tile cost to G cost
@@ -152,5 +176,10 @@ public class AStar
     private void SetHCost(Tile _tile, int _cost)
     {
         _tile.HCost = _cost + _tile.GCost; // Add tile GCost to H cost
+    }
+
+    private void SetPathCost(Tile neighbour, Tile currentTile)
+    {
+        neighbour.PathCost = currentTile.PathCost + neighbour.Cost; // Add tile cost to path cost
     }
 }

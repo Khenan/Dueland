@@ -63,14 +63,14 @@ public class InitiativeCanvas : MonoBehaviour
         TurnManager.onNextTurn += UpdateSlots;
     }
 
-    private void UpdateSlots(ulong _clientId)
+    private void UpdateSlots(ulong _previousClientId, ulong _currentClientId)
     {
-        Logger.Log("Update Slots: " + _clientId);
+        Logger.Log("Update Slots: " + _currentClientId);
         foreach (InitiativeSlot _slot in slots)
         {
             Logger.Log("Slot ClientId: " + _slot.Character.OwnerClientId);
-            Logger.Log("Current ClientId: " + _clientId);
-            _slot.SetOutline(_slot.Character.OwnerClientId == _clientId);
+            Logger.Log("Current ClientId: " + _currentClientId);
+            _slot.SetOutline(_slot.Character.OwnerClientId == _currentClientId);
         }
     }
 }
