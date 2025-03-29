@@ -1,29 +1,36 @@
 using System;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private Character characterPrefab;
-
+    private Character ownerCharacter;
     private Tile currentHoverTile;
-
     public override void OnNetworkSpawn()
     {
         Logger.Log("Network PlayerController Spawned and playerId is: " + OwnerClientId);
         if (IsOwner)
         {
+            MapManager.onMapInstantiated += OnMapInstantiated;
             SpawnCharacterServerRpc();
         }
+    }
+
+    private void OnMapInstantiated()
+    {
+        ownerCharacter.MoveToTile(MapManager.Instance.GetRandomTile());
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnCharacterServerRpc()
     {
-        Character _character = Instantiate(characterPrefab);
+        Character character = Instantiate(characterPrefab);
 
-        NetworkObject _characterNetworkObject = _character.GetComponent<NetworkObject>();
+        NetworkObject _characterNetworkObject = character.GetComponent<NetworkObject>();
         _characterNetworkObject.SpawnWithOwnership(OwnerClientId);
+        ownerCharacter = GameManager.Instance.GetCharacterById(OwnerClientId);
     }
 
     public void Update()
@@ -53,7 +60,15 @@ public class PlayerController : NetworkBehaviour
                 Logger.Log("2D Collider hit: " + _hit2D.collider.name);
                 if (_hit2D.collider.TryGetComponent(out Tile _tile))
                 {
-                    MoveCharacter(_tile);
+                    Vector2Int _currentPosition = ownerCharacter.MatrixPosition.Value;
+                    if (MapManager.Instance.GetTileByMatrixPosition(_currentPosition.x, _currentPosition.y).IsAdjacentTo(_tile))
+                    {
+                        MoveCharacter(_tile);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("Selected tile is not adjacent to the current tile.");
+                    }
                 }
                 else Logger.LogWarning("Hit object does not have a Tile component.");
             }

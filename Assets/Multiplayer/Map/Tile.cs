@@ -30,6 +30,15 @@ public class Tile : MonoBehaviour
         matrixPosition = _matrixPosition;
     }
 
+    public bool IsAdjacentTo(Tile tile)
+    {
+        if (tile == null)
+            return false;
+        bool _tileRowIsAdjacent = Math.Abs(tile.MatrixPosition.x - matrixPosition.x) == 1 && tile.MatrixPosition.y == matrixPosition.y;
+        bool _tileColumnIsAdjacent = Math.Abs(tile.MatrixPosition.y - matrixPosition.y) == 1 && tile.MatrixPosition.x == matrixPosition.x;
+        return _tileRowIsAdjacent || _tileColumnIsAdjacent;
+    }
+
     public void SetNeighbours(Tile _up, Tile _down, Tile _left, Tile _right)
     {
         Up = _up ?? null;
