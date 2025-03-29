@@ -15,7 +15,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             MapManager.onMapInstantiated += OnMapInstantiated;
-            SpawnCharacterServerRpc();
+            SpawnCharacterServerRpc(MultiplayerManager.Instance.SelectedCharacterId);
         }
     }
 
@@ -25,11 +25,11 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnCharacterServerRpc()
+    public void SpawnCharacterServerRpc(int _characterId)
     {
-        Character character = Instantiate(characterPrefab);
+        Character _character = Instantiate(characterPrefab);
 
-        NetworkObject _characterNetworkObject = character.GetComponent<NetworkObject>();
+        NetworkObject _characterNetworkObject = _character.GetComponent<NetworkObject>();
         _characterNetworkObject.SpawnWithOwnership(OwnerClientId);
         ownerCharacter = GameManager.Instance.GetCharacterById(OwnerClientId);
     }
@@ -78,10 +78,12 @@ public class PlayerController : NetworkBehaviour
 
     private List<Tile> currentPath = new List<Tile>();
     private bool canMoveOnCurrentPath = false;
+    private int currentPathCost = 0;
 
     private void UpdateTurnHoverTile()
     {
         canMoveOnCurrentPath = false;
+        currentPathCost = 0;
         if (currentPath.Count > 0)
         {
             MapManager.Instance.HidePathVisual();
@@ -91,11 +93,12 @@ public class PlayerController : NetworkBehaviour
         if (currentHoverTile != null && MapManager.Instance != null)
         {
             MapManager.Instance.FindPath(ownerCharacter.MatrixPosition.Value, currentHoverTile.MatrixPosition, out Tile[] _path, out int _pathCost);
-            if (_path != null && _path.Length > 0 && _pathCost <= ownerCharacter.Data.MovePoints)
+            if (_path != null && _path.Length > 0 && _pathCost <= ownerCharacter.Data.Value.MovePoints)
             {
                 MapManager.Instance.ShowPathVisual(_path);
                 currentPath.AddRange(_path);
                 canMoveOnCurrentPath = true;
+                currentPathCost = _pathCost;
             }
         }
     }
@@ -115,11 +118,7 @@ public class PlayerController : NetworkBehaviour
                 {
                     if (canMoveOnCurrentPath)
                     {
-                        MoveCharacter(_tile);
-                    }
-                    else
-                    {
-                        Logger.LogWarning("Selected tile is not adjacent to the current tile.");
+                        MoveCharacter(_tile, currentPathCost);
                     }
                 }
                 else Logger.LogWarning("Hit object does not have a Tile component.");
@@ -128,7 +127,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    private void MoveCharacter(Tile tile)
+    private void MoveCharacter(Tile _tile, int _pathCost)
     {
         // Check if the current turnCharacter has the same owner as this player
         if (TurnManager.Instance.characterReferenceTurn.Value.TryGet(out NetworkObject _networkObject))
@@ -137,7 +136,7 @@ public class PlayerController : NetworkBehaviour
             {
                 if (_networkObject.TryGetComponent(out Character _character))
                 {
-                    _character.MoveToTile(tile);
+                    _character.MoveToTile(_tile, _pathCost);
                 }
             }
             else Logger.LogWarning("Not your turn.");
