@@ -50,9 +50,11 @@ public class MapManager : NetworkBehaviour
             {
                 List<Tile> _tilePath = aStar.FindPath(startTile, endTile);
                 Logger.Log("Path found: " + _tilePath.Count + " tiles.");
-                foreach (var _tile in _tilePath)
+                for (int i = 0; i < _tilePath.Count; i++)
                 {
-                    _tile.GetComponent<SpriteRenderer>().color = Color.red;
+                    float t = (float)i / (_tilePath.Count - 1); // Normalized value between 0 and 1
+                    Color gradientColor = Color.Lerp(Color.red, Color.blue, t); // Interpolate between red and blue
+                    _tilePath[i].GetComponent<SpriteRenderer>().color = gradientColor;
                 }
             }
         }
@@ -69,7 +71,6 @@ public class MapManager : NetworkBehaviour
         RaycastHit2D _hit2D = Physics2D.Raycast(_ray.origin, _ray.direction);
         if (_hit2D.collider != null)
         {
-            Logger.Log("2D Collider hit: " + _hit2D.collider.name);
             if (_hit2D.collider.TryGetComponent(out Tile _tile))
             {
                 return _tile;
@@ -120,7 +121,7 @@ public class MapManager : NetworkBehaviour
                 _tile.Init(new Vector2Int(_x, _y));
                 _tile.gameObject.name = $"Tile {_x} {_y}";
 
-                SpriteRenderer _spriteRenderer = _tile.gameObject.AddComponent<SpriteRenderer>();
+                SpriteRenderer _spriteRenderer = _tile.tileSpriteRenderer;
                 _spriteRenderer.sprite = tileSprite;
                 byte _tileType = _map[_y * mapSize + _x];
                 switch (_tileType)
